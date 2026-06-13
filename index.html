@@ -437,23 +437,33 @@ function buildAgents3D(){
     const lk=LOOK[a.role]||LOOK.Developer;const g=new THREE.Group();
     const M=o=>new THREE.MeshStandardMaterial(o); // material helper
     
-    // === LEGS ===
+    // === LEGS (dangling naturally from chair) ===
     const legsG=new THREE.Group();
     // HIPS / PELVIS
-    const hips=new THREE.Mesh(new THREE.SphereGeometry(0.22,16,12,0,Math.PI*2,Math.PI*0.7,Math.PI*0.6),M({color:lk.outfit,roughness:0.35}));
-    hips.position.y=0.42;hips.castShadow=true;legsG.add(hips);
+    const hips=new THREE.Mesh(new THREE.SphereGeometry(0.2,16,12,0,Math.PI*2,Math.PI*0.7,Math.PI*0.6),M({color:lk.outfit,roughness:0.35}));
+    hips.position.y=0.3;hips.castShadow=true;legsG.add(hips);
     // Butt cheeks
-    const buttL=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),M({color:lk.outfit,roughness:0.35}));
-    buttL.position.set(-0.08,0.32,-0.1);legsG.add(buttL);
-    const buttR=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),M({color:lk.outfit,roughness:0.35}));
-    buttR.position.set(0.08,0.32,-0.1);legsG.add(buttR);
-    [[-0.1,0,-0.05],[0.1,0,0.05]].forEach(([lx,ly,lz])=>{
-      const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.35,8),M({color:lk.outfit,roughness:0.4}));
-      leg.position.set(lx,0.17,ly);leg.castShadow=true;legsG.add(leg);
-      const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.06,0.16),M({color:'#2d1f1a',roughness:0.6}));
-      shoe.position.set(lx,0.02,ly+0.05);shoe.castShadow=true;legsG.add(shoe);
+    const buttL=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,8),M({color:lk.outfit,roughness:0.35}));
+    buttL.position.set(-0.07,0.22,-0.08);legsG.add(buttL);
+    const buttR=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,8),M({color:lk.outfit,roughness:0.35}));
+    buttR.position.set(0.07,0.22,-0.08);legsG.add(buttR);
+    // Upper legs (thighs) - angle forward slightly for sitting
+    [[-0.08,0,-0.02],[0.08,0,0.02]].forEach(([lx,ly,lz])=>{
+      const thighG=new THREE.Group();
+      const thigh=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.07,0.22,8),M({color:lk.outfit,roughness:0.4}));
+      thigh.position.y=-0.1;thigh.castShadow=true;thighG.add(thigh);
+      thighG.position.set(lx,0.14,ly-0.05);thighG.rotation.x=0.5; // slight forward angle
+      legsG.add(thighG);
+      // Lower leg hanging down
+      const shinG=new THREE.Group();
+      const shin=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.22,8),M({color:lk.outfit,roughness:0.4}));
+      shin.position.y=-0.1;shin.castShadow=true;shinG.add(shin);
+      const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.09,0.05,0.14),M({color:'#2d1f1a',roughness:0.6}));
+      shoe.position.set(0,-0.2,0.04);shoe.castShadow=true;shinG.add(shoe);
+      shinG.position.set(lx,0.1,ly-0.12);shinG.rotation.x=0.3;
+      legsG.add(shinG);
     });
-    legsG.position.y=0;g.add(legsG);
+    legsG.position.set(0,0.05,0.18);g.add(legsG);
     
     // === TORSO (with outfit) ===
     const torsoG=new THREE.Group();
@@ -573,12 +583,9 @@ function buildAgents3D(){
       emissiveIntensity:0.9,roughness:0.2}));
     ring.position.y=1.5;ring.rotation.x=Math.PI/2;g.add(ring);
     
-    g.position.set(pos[0],0.42,pos[2]+0.7);
+    g.position.set(pos[0],0.4,pos[2]+0.68);
     g.userData={agentId:a.id,ring,headG,legsG,torsoG};
     g.scale.set(0.85,0.85,0.85);
-    // Rotate legs for sitting pose
-    legsG.rotation.x=Math.PI/2; // bend legs forward
-    legsG.position.set(0,-0.15,0.15);
     scene3D.add(g);
     agentMeshes.push({group:g,ring,body:legsG,head:headG,torso:torsoG,agent:a});
   });
