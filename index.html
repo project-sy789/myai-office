@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>MyAI Office — Your AI Team</title>
+<meta name="description" content="Hire AI agents, assign roles, and get real work done.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="manifest" href="data:application/json,{}">
+<style>
+:root{
+  --ink:#f3eeff;--ink2:#c4bce0;--paper:#1c1830;--paper2:#252040;
+  --line:#2a2540;--muted:#8a7fa8;--grape:#7c5cff;--coral:#ff6b5f;
+  --leaf:#22b07a;--gold:#ffb43c;--pink:#ff7eb6;--sky:#2f9fe0;
+  --btn:#2a2548;--btnHover:#332d55;--card:#221e38;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--paper2);border-bottom:1px solid var(--line);flex-shrink:0}
+header .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;cursor:pointer}
+header .logo b{color:var(--grape)}
+header .spacer{flex:1}
+.btn{padding:8px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:none;background:var(--btn);color:var(--ink);transition:all .15s}
+.btn:hover{background:var(--btnHover)}
+.btn.p{background:var(--grape);color:#fff}
+.btn.p:hover{filter:brightness(1.1)}
+.btn.d{background:var(--coral);color:#fff}
+.btn.s{background:var(--leaf);color:#fff}
+.btn.ghost{background:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+main{flex:1;overflow-y:auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;transition:all .2s;cursor:pointer}
+.card:hover{border-color:var(--grape)}
+.card .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card .avatar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900;flex-shrink:0}
+.card .name{font-weight:800;font-size:15px}
+.card .role{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.card .status{font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;margin-left:auto}
+.card .task{font-size:12px;color:var(--ink2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status.idle{background:#2a2540;color:var(--muted)}
+.status.work{background:rgba(124,92,255,.2);color:var(--grape)}
+.status.done{background:rgba(34,176,122,.2);color:var(--leaf)}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .icon{font-size:48px;margin-bottom:12px}
+.empty h2{font-weight:900;margin-bottom:6px;color:var(--ink)}
+.empty p{font-size:13px;margin-bottom:16px}
+.chat-panel{display:flex;flex-direction:column;height:100%}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.chat-msg.user{align-self:flex-end;background:var(--grape);color:#fff;border-bottom-right-radius:4px}
+.chat-msg.agent{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-msg .code{background:rgba(0,0,0,.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:12px;overflow-x:auto}
+.chat-input-box{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--paper2);flex-shrink:0}
+.chat-input-box input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;outline:none;font-family:inherit}
+.chat-input-box input:focus{border-color:var(--grape)}
+.back-btn{cursor:pointer;font-size:18px;padding:4px 8px}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px}
+.modal{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
+.modal h2{font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.modal h2 span{font-size:14px;color:var(--muted);margin-left:auto;cursor:pointer}
+.modal label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;font-family:inherit;outline:none}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--grape)}
+.modal select{appearance:none;cursor:pointer}
+.modal textarea{resize:vertical;min-height:60px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:12px;font-weight:800;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.tabs{display:flex;gap:4px;background:var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
+.tab{flex:1;text-align:center;padding:8px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;color:var(--muted)}
+.tab.on{background:var(--grape);color:#fff}
+@media(max-width:400px){.btn{font-size:12px;padding:6px 10px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+<script>
+// ====== MyAI Office — Single-File AI Agent Manager ======
+const $ = id => document.getElementById(id);
+const STORAGE = 'myaioffice_v1';
+
+// ====== State ======
+let state = {
+  agents: [],
+  settings: { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' },
+  view: 'office', // office | chat
+  chatAgentId: null,
+};
+let LANG = 'en';
+
+function saveState() { try { localStorage.setItem(STORAGE, JSON.stringify(state)); } catch(e) {} }
+function loadState() { try { const s = localStorage.getItem(STORAGE); if (s) state = JSON.parse(s); } catch(e) {} }
+
+// ====== Helpers ======
+const esc = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const uid = () => 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const tn = (en, th) => LANG === 'th' ? th : en;
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+const ROLES = {
+  Developer: { icon:'💻', color:'#2f9fe0', en:'Developer', th:'นักพัฒนา', descEn:'Writes code, debugs, builds apps', descTh:'เขียนโค้ด แก้บั๊ค สร้างแอพ' },
+  Content:   { icon:'🎬', color:'#ff7eb6', en:'Content Creator', th:'ครีเอเตอร์', descEn:'Creates videos, posts, reels', descTh:'ทำวิดีโอ โพสต์ คอนเทนต์' },
+  Trader:    { icon:'📈', color:'#22b07a', en:'Trader', th:'นักเทรด', descEn:'Analyzes markets, tracks PnL', descTh:'วิเคราะห์ตลาด ติดตามพอร์ต' },
+  Designer:  { icon:'🎨', color:'#ffb43c', en:'Designer', th:'ดีไซเนอร์', descEn:'Graphics, logos, thumbnails', descTh:'ทำกราฟิก โลโก้ ธัมบ์เนล' },
+  Research:  { icon:'🔍', color:'#7c5cff', en:'Researcher', th:'นักวิจัย', descEn:'Summarizes, analyzes, reports', descTh:'สรุป วิเคราะห์ ทำรายงาน' },
+  Admin:     { icon:'📋', color:'#8a7fa8', en:'Admin', th:'แอดมิน', descEn:'Replies to customers, schedules', descTh:'ตอบลูกค้า จัดตารางงาน' },
+};
+const ROLE_NAMES = Object.keys(ROLES);
+
+// ====== Gemini API ======
+async function callGemini(prompt, history) {
+  const key = state.settings.apiKey;
+  if (!key) return { error: 'API key not set. Open Settings to add your Gemini key.' };
+  const model = state.settings.model || 'gemini-2.0-flash';
+  const contents = [];
+  for (const h of (history||[])) {
+    contents.push({ role: h.role === 'user' ? 'user' : 'model', parts: [{ text: h.text }] });
+  }
+  contents.push({ role: 'user', parts: [{ text: prompt }] });
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents, generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } })
+    });
+    const d = await res.json();
+    if (d.error) return { error: d.error.message || 'API error' };
+    return { text: d.candidates?.[0]?.content?.parts?.[0]?.text || '(no response)' };
+  } catch (e) {
+    return { error: 'Network error — check your connection' };
+  }
+}
+
+// ====== Agent Management ======
+function getAgent(id) { return state.agents.find(a => a.id === id); }
+
+function hireAgent(role, name) {
+  const r = ROLES[role];
+  const agent = {
+    id: uid(), role, name: name || (r[LANG] || r.en),
+    chat: [], status: 'idle', createdAt: Date.now()
+  };
+  state.agents.push(agent);
+  saveState();
+  toast(tn('Agent hired! ✦', 'จ้างแล้ว! ✦'));
+  return agent;
+}
+
+function fireAgent(id) {
+  state.agents = state.agents.filter(a => a.id !== id);
+  saveState();
+  toast(tn('Agent fired', 'ไล่ออกแล้ว'));
+}
+
+// ====== Agent System Prompt ======
+function systemPrompt(agent) {
+  const r = ROLES[agent.role];
+  return `You are "${agent.name}", an AI ${r.en} working at MyAI Office.
+Your specialty: ${r.descEn}
+Role: ${agent.role}
+
+Rules:
+- Respond in ${LANG === 'th' ? 'Thai' : 'English'} unless asked otherwise
+- For code: write complete, working code in markdown code blocks
+- For content: write publish-ready copy
+- For research: cite facts concisely
+- For trading: analyze trends clearly
+- Be professional but friendly
+- If asked for code, ALWAYS include the full working code
+- Keep responses concise and actionable`;
+}
+
+// ====== UI Rendering ======
+function renderApp() {
+  const app = $('#app');
+  if (state.view === 'chat' && state.chatAgentId) {
+    renderChat();
+    return;
+  }
+  renderOffice();
+}
+
+function renderOffice() {
+  const app = $('#app');
+  LANG = state.settings.lang || 'en';
+  const th = LANG === 'th';
+  
+  app.innerHTML = `
+    <header>
+      <span class="logo">🏢 <b>MyAI</b> Office</span>
+      <span class="spacer"></span>
+      <span style="font-size:12px;font-weight:800;color:var(--muted)">${state.agents.length} ${th?'คน':'agents'}</span>
+      <button class="btn ghost" onclick="showSettings()" title="${th?'ตั้งค่า':'Settings'}">⚙️</button>
+    </header>
+    <main>
+      <div class="tabs">
+        <div class="tab on">${th?'ออฟฟิศ':'Office'}</div>
+        <div class="tab" onclick="showSettings()">⚙️ ${th?'ตั้งค่า':'Settings'}</div>
+      </div>
+      ${state.agents.length === 0 ? `
+        <div class="empty">
+          <div class="icon">🤖</div>
+          <h2>${th?'ยังไม่มีทีม AI':'No AI team yet'}</h2>
+          <p>${th?'จ้างเอเจนต์ AI มาทำงานให้คุณ — เลือกบทบาทที่ต้องการ':'Hire AI agents to work for you — pick a role to get started.'}</p>
+          <button class="btn p" onclick="showHire()">+ ${th?'จ้างเอเจนต์':'Hire Agent'}</button>
+        </div>
+      ` : state.agents.map(a => {
+        const r = ROLES[a.role];
+        return `
+          <div class="card" onclick="openChat('${a.id}')">
+            <div class="head">
+              <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.icon}</div>
+              <div>
+                <div class="name">${esc(a.name)}</div>
+                <div class="role" style="color:${r.color}">${r[LANG]||r.en}</div>
+              </div>
+              <div class="status ${a.status}">${a.status==='idle'?(th?'ว่าง':'idle'):a.status==='work'?(th?'ทำงาน':'working'):(th?'เสร็จ':'done')}</div>
+            </div>
+            <div class="task">${esc(a.chat.length?a.chat[a.chat.length-1].text.slice(0,80):(th?'พร้อมรับคำสั่ง...':'Ready for tasks...'))}</div>
+          </div>
+        `;
+      }).join('')}
+      ${state.agents.length > 0 ? `
+        <button class="btn p" style="width:100%;margin-top:4px" onclick="showHire()">+ ${th?'จ้างเพิ่ม':'Hire More'}</button>
+      ` : ''}
+    </main>
+  `;
+}
+
+function renderChat() {
+  const app = $('#app');
+  LANG = state.settings.lang || 'en';
+  const th = LANG === 'th';
+  const agent = getAgent(state.chatAgentId);
+  if (!agent) { state.view = 'office'; renderOffice(); return; }
+  const r = ROLES[agent.role];
+  
+  app.innerHTML = `
+    <header>
+      <span class="back-btn" onclick="backToOffice()">←</span>
+      <div class="avatar" style="width:30px;height:30px;border-radius:8px;font-size:16px;background:${r.color}22;color:${r.color}">${r.icon}</div>
+      <div>
+        <div class="name" style="font-size:14px">${esc(agent.name)}</div>
+        <div class="role" style="font-size:10px;color:${r.color}">${r[LANG]||r.en}</div>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn ghost" onclick="showAgentMenu('${agent.id}')" style="font-size:18px">⋯</button>
+    </header>
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-msgs" id="chatMsgs">
+        ${agent.chat.length === 0 ? `
+          <div style="text-align:center;padding:30px;color:var(--muted)">
+            <div style="font-size:36px;margin-bottom:8px">${r.icon}</div>
+            <div style="font-weight:700">${esc(agent.name)} · ${r[LANG]||r.en}</div>
+            <div style="font-size:12px;margin-top:4px">${r['desc'+(th?'Th':'En')]}</div>
+          </div>
+        ` : agent.chat.map(m => `
+          <div class="chat-msg ${m.role}">
+            ${m.role==='agent' ? esc(agent.name)+': ' : ''}${m.text.replace(/\`\`\`([\s\S]*?)\`\`\`/g, '<div class="code">$1</div>')}
+          </div>
+        `).join('')}
+        <div id="typingInd" style="display:none;align-self:flex-start;padding:8px 14px;background:var(--card);border-radius:14px;font-size:12px;color:var(--muted)">${th?'กำลังคิด...':'Thinking...'}</div>
+      </div>
+      <div class="chat-input-box">
+        <input id="chatInput" placeholder="${th?'พิมพ์คำสั่งให้เอเจนต์...':'Tell your agent what to do...'}" onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="btn p" onclick="sendMessage()">${th?'ส่ง':'Send'}</button>
+      </div>
+    </div>
+    <div id="agentMenu" style="display:none"></div>
+  `;
+  
+  setTimeout(() => { const inp = $('#chatInput'); if (inp) inp.focus(); }, 100);
+}
+
+function backToOffice() {
+  state.view = 'office'; state.chatAgentId = null;
+  renderOffice();
+}
+
+async function sendMessage() {
+  const input = $('#chatInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  
+  const agent = getAgent(state.chatAgentId);
+  if (!agent) return;
+  
+  const th = LANG === 'th';
+  agent.chat.push({ role: 'user', text });
+  agent.status = 'work';
+  saveState();
+  renderChat();
+  
+  // Show typing indicator
+  const ti = $('#typingInd');
+  if (ti) ti.style.display = 'block';
+  const msgs = $('#chatMsgs');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  
+  // Call AI
+  const history = [{ role: 'system', text: systemPrompt(agent) }, ...agent.chat.slice(0, -1)];
+  const fullPrompt = text;
+  
+  const result = await callGemini(fullPrompt, history);
+  
+  if (ti) ti.style.display = 'none';
+  
+  if (result.error) {
+    agent.chat.push({ role: 'agent', text: '⚠️ ' + result.error });
+  } else {
+    agent.chat.push({ role: 'agent', text: result.text });
+    agent.status = 'idle';
+  }
+  saveState();
+  renderChat();
+}
+
+function openChat(agentId) {
+  state.view = 'chat';
+  state.chatAgentId = agentId;
+  renderChat();
+}
+
+function showAgentMenu(agentId) {
+  const agent = getAgent(agentId);
+  if (!agent) return;
+  const th = LANG === 'th';
+  const menu = $('#agentMenu');
+  if (!menu) return;
+  menu.style.display = 'block';
+  menu.innerHTML = `
+    <div class="modal-overlay" onclick="this.parentElement.style.display='none'">
+      <div class="modal" onclick="event.stopPropagation()">
+        <h2>${esc(agent.name)} <span onclick="this.closest('.modal-overlay').parentElement.style.display='none'">✕</span></h2>
+        <button class="btn d" style="width:100%;margin-top:8px" onclick="fireAgent('${agent.id}');backToOffice()">${th?'ไล่ออก':'Fire Agent'}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ====== Hire Modal ======
+function showHire() {
+  const th = LANG === 'th';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h2>${th?'จ้างเอเจนต์ AI':'Hire AI Agent'} <span onclick="this.closest('.modal-overlay').remove()">✕</span></h2>
+      <label>${th?'บทบาท':'Role'}</label>
+      <select id="hireRole">
+        ${ROLE_NAMES.map(rn => `<option value="${rn}">${ROLES[rn].icon} ${ROLES[rn][LANG]||ROLES[rn].en}</option>`).join('')}
+      </select>
+      <label>${th?'ชื่อ (ไม่ต้องใส่ก็ได้)':'Name (optional)'}</label>
+      <input id="hireName" placeholder="${th?'ตั้งชื่อเอเจนต์':'Name your agent'}">
+      <button class="btn p" style="width:100%;margin-top:12px" onclick="doHire()">${th?'จ้างเลย! ⛁':'Hire! ⛁'}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+}
+
+function doHire() {
+  const role = document.getElementById('hireRole')?.value || 'Developer';
+  const name = document.getElementById('hireName')?.value?.trim();
+  const agent = hireAgent(role, name);
+  document.querySelector('.modal-overlay')?.remove();
+  saveState();
+  renderOffice();
+}
+
+// ====== Settings ======
+function showSettings() {
+  const th = LANG === 'th';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h2>⚙️ ${th?'ตั้งค่า':'Settings'} <span onclick="this.closest('.modal-overlay').remove()">✕</span></h2>
+      <label>🌐 ${th?'ภาษา':'Language'}</label>
+      <select id="setLang" onchange="state.settings.lang=this.value;LANG=this.value;saveState()">
+        <option value="en" ${state.settings.lang==='en'?'selected':''}>English</option>
+        <option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option>
+      </select>
+      <label>🔑 Gemini API Key</label>
+      <input id="setKey" type="password" value="${esc(state.settings.apiKey)}" placeholder="AIza...">
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">
+        ${th?'ได้ฟรีที่':'Get free key at'} <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--sky)">aistudio.google.com</a>
+      </div>
+      <label>🧠 ${th?'โมเดล':'Model'}</label>
+      <select id="setModel" onchange="state.settings.model=this.value;saveState()">
+        <option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash (${th?'เร็ว':'fast'})</option>
+        <option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option>
+        <option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro (${th?'ฉลาดกว่า':'smarter'})</option>
+      </select>
+      <button class="btn p" style="width:100%;margin-top:12px" onclick="saveSettings()">${th?'บันทึก':'Save'}</button>
+      <button class="btn ghost" style="width:100%;margin-top:6px;font-size:11px;color:var(--coral)" onclick="resetAll()">${th?'ล้างข้อมูลทั้งหมด':'Reset everything'}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+}
+
+function saveSettings() {
+  const key = document.getElementById('setKey')?.value?.trim();
+  if (key) state.settings.apiKey = key;
+  saveState();
+  document.querySelector('.modal-overlay')?.remove();
+  renderOffice();
+  toast(LANG==='th'?'บันทึกแล้ว ✓':'Saved ✓');
+}
+
+function resetAll() {
+  if (confirm(LANG==='th'?'แน่ใจนะ?':'Are you sure?')) {
+    try { localStorage.removeItem(STORAGE); } catch(e) {}
+    state = { agents: [], settings: { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' }, view: 'office', chatAgentId: null };
+    document.querySelector('.modal-overlay')?.remove();
+    renderOffice();
+  }
+}
+
+// ====== Boot ======
+(async function boot() {
+  try {
+    loadState();
+    LANG = state.settings.lang || 'en';
+    if (!state.settings) state.settings = { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' };
+    if (!Array.isArray(state.agents)) state.agents = [];
+    renderApp();
+  } catch (e) {
+    document.getElementById('app').innerHTML = '<div class="empty"><h2>⚠️ App failed to start</h2><p>Try clearing browser data.</p></div>';
+  }
+})();
+</script>
+</body>
+</html>
