@@ -454,6 +454,13 @@ function updateWelcome(){const w=$('welcome'),th=L==='th';if(state.agents.length
 (async function(){
   try{load();L=state.settings.lang||'th';
     if(!state.settings)state.settings={apiKey:'',lang:'th',model:'deepseek-v4-pro',provider:'proxy',proxyUrl:'https://das-beads-told-circumstances.trycloudflare.com'};
+    // Auto-upgrade old settings to use proxy
+    if((state.settings.provider==='gemini'||state.settings.provider==='opencode') && !state.settings.apiKey){
+      state.settings.provider='proxy';
+      state.settings.model='deepseek-v4-pro';
+      state.settings.proxyUrl='https://das-beads-told-circumstances.trycloudflare.com';
+      save();
+    }
     if(!Array.isArray(state.agents))state.agents=[];
     if(!state.agents.length&&!localStorage.getItem(S+'_seeded')){state.agents=DEMO_AGENTS.map(a=>({...a,id:uid()}));try{localStorage.setItem(S+'_seeded','1')}catch(e){}}
     L=state.settings.lang||'th';init3D();updateWelcome();fetchPrices();
