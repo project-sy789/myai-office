@@ -102,10 +102,11 @@ input[type=file]{display:none}
 const $=id=>document.getElementById(id);
 const S='myaioffice_v2';
 let state={
-  agents:[], settings:{apiKey:'',lang:'en',model:'gemini-2.0-flash'},
+  agents:[], settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash'},
   view:'office', chatId:null,
   paperBalance:10000, paperTrades:[], tradeId:0
 };
+const DEMO_AGENTS=[{id:'demo_dev',role:'Developer',name:'Mint',memory:'ตอบเป็นภาษาไทย',chat:[],status:'idle',createdAt:Date.now()-86400000},{id:'demo_trader',role:'Trader',name:'Boss',memory:'วิเคราะห์เด่น BTC ETH SOL',chat:[],status:'idle',createdAt:Date.now()-86400000}];
 let prices={}, priceTimer=null;
 let L='en', _toastTimer=null;
 
@@ -317,7 +318,7 @@ function render(){
 }
 
 function renderOffice(){
-  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const app=$('app');L=state.settings.lang||'th';const th=L==='th';
   const ags=state.agents;
   app.innerHTML=`
     <header>
@@ -357,7 +358,7 @@ function renderOffice(){
 }
 
 function renderChat(){
-  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const app=$('app');L=state.settings.lang||'th';const th=L==='th';
   const a=state.agents.find(x=>x.id===state.chatId);
   if(!a){state.view='office';renderOffice();return;}
   const r=R[a.role];
@@ -458,7 +459,7 @@ function handleFile(e){
 
 // ====== TRADING VIEW ======
 function renderTrading(){
-  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const app=$('app');L=state.settings.lang||'th';const th=L==='th';
   const openPositions=state.paperTrades.filter(t=>!t.closed);
   const closedTrades=state.paperTrades.filter(t=>t.closed).slice(-20).reverse();
   const balance=state.paperBalance+(openPositions.reduce((s,t)=>{
@@ -477,7 +478,6 @@ function renderTrading(){
       <span>💰 ${th?'พอร์ต':'Portfolio'}: <b class="eq">$${Math.round(balance).toLocaleString()}</b></span>
       <span style="font-size:10px;color:var(--muted)">${th?'เงินสด':'Cash'}: $${Math.round(state.paperBalance).toLocaleString()}</span>
       <span style="margin-left:auto;color:${totalPnl>=0?'var(--leaf)':'var(--coral)'}">${totalPnl>=0?'+':''}$${Math.round(totalPnl).toLocaleString()}</span>
-      <button class="btn sm gho" onclick="state.paperBalance=10000;state.paperTrades=[];state.tradeId=0;save();render()" title="${th?'รีเซ็ตพอร์ต':'Reset portfolio'}">🔄</button>
     </div>
     <main>
       ${openPositions.length===0&&closedTrades.length===0?`
@@ -649,31 +649,17 @@ function doSaveSettings(){
 function doReset(){
   if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;
   try{localStorage.removeItem(S)}catch(e){}
-  state={agents:[],settings:{apiKey:DEFAULT_KEY,lang:'th',model:'gemini-2.0-flash'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};
+  state={agents:[],settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};
   document.querySelector('.modal-over')?.remove();render();
 }
 
-// ====== DEFAULTS ======
-const DEFAULT_KEY='AIzaSyDGVxEaFy9qLxecK6sO1lV-2YQ8N0wZ3Hk';  // free Gemini key
-const DEMO_AGENTS=[
-  {id:'demo_dev',role:'Developer',name:'Mint',memory:'ตอบเป็นภาษาไทย เขียนโค้ดสั้นๆ กระชับ พร้อมคอมเมนต์อธิบาย',chat:[],status:'idle',createdAt:Date.now()-86400000},
-  {id:'demo_trader',role:'Trader',name:'Boss',memory:'วิเคราะห์เด่นๆ เก็งกำไรระยะสั้น ชอบ BTC, ETH, SOL',chat:[],status:'idle',createdAt:Date.now()-86400000},
-];
-
 // ====== BOOT ======
 (async function(){
-  try{load();L=state.settings.lang||'en';
-    if(!state.settings)state.settings={apiKey:DEFAULT_KEY,lang:'th',model:'gemini-2.0-flash'};
-    if(!state.settings.apiKey)state.settings.apiKey=DEFAULT_KEY;
-    if(state.settings.lang==='en'&&!localStorage.getItem(S+'_migrated')){state.settings.lang='th';try{localStorage.setItem(S+'_migrated','1')}catch(e){}}
+  try{load();L=state.settings.lang||'th';
+    if(!state.settings)state.settings={apiKey:'',lang:'th',model:'gemini-2.0-flash'};
     if(!Array.isArray(state.agents))state.agents=[];
-    // First run: pre-load demo agents
-    if(!state.agents.length&&!localStorage.getItem(S+'_seeded')){
-      state.agents=DEMO_AGENTS.map(a=>({...a,id:uid()}));
-      try{localStorage.setItem(S+'_seeded','1')}catch(e){}
-    }
-    save();
-    render();fetchPrices().then(()=>{if(state.view==='trade')render();});initPriceTimer();
+    if(!state.agents.length&&!localStorage.getItem(S+'_seeded')){state.agents=DEMO_AGENTS.map(a=>({...a,id:uid()}));try{localStorage.setItem(S+'_seeded','1')}catch(e){}}
+    render();
   }catch(e){$('app').innerHTML=`<div class="empty"><h2>⚠️ App failed</h2><p>Try clearing browser data.</p></div>`;}
 })();
 </script>
