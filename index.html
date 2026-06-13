@@ -148,7 +148,7 @@ input[type=file]{display:none}
 const $=id=>document.getElementById(id);
 const S='myaioffice_v7';
 let state={
-  agents:[], settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},
+  agents:[], settings:{apiKey:'',lang:'th',model:'deepseek-v4-pro',provider:'proxy',proxyUrl:'https://das-beads-told-circumstances.trycloudflare.com'},
   view:'office', chatId:null, panelMode:null,
   paperBalance:10000, paperTrades:[], tradeId:0
 };
@@ -254,7 +254,7 @@ function fireAgent(id){const a=state.agents.find(x=>x.id===id);if(!a)return;if(!
 function showSettings(){const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';ov.innerHTML=`<div class="modal"><h3>⚙️ ${th?'ตั้งค่า':'Settings'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3><label>🌐 ${th?'ภาษา':'Language'}</label><select id="setLang" onchange="state.settings.lang=this.value;L=this.value;save()"><option value="en" ${state.settings.lang==='en'?'selected':''}>English</option><option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option></select><label>🤖 ${th?'ผู้ให้บริการ AI':'AI Provider'}</label><select id="setProvider" onchange="state.settings.provider=this.value;save();reloadSettings()"><option value="gemini" ${state.settings.provider==='gemini'?'selected':''}>Google Gemini (${th?'ใช้ API key ตัวเอง':'own API key'})</option><option value="opencode" ${state.settings.provider==='opencode'?'selected':''}>OpenCode · DeepSeek v4 Pro</option><option value="proxy" ${state.settings.provider==='proxy'?'selected':''}>🔒 ${th?'Proxy ส่วนตัว (ไม่ต้องใช้ key)':'Private Proxy (no key needed)'}</option></select>${state.settings.provider==='proxy'?`<label>🔗 Proxy URL</label><input id="setProxy" value="${esc(state.settings.proxyUrl||'http://localhost:8765')}"><div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ที่อยู่ proxy server — รัน python3 proxy.py บนเครื่องตัวเอง':'Proxy server address — run proxy.py on your machine'}</div>`:''}<label>🔑 API Key ${state.settings.provider==='proxy'?'(auto)':''}</label><input id="setKey" type="password" value="${esc(state.settings.provider==='proxy'?'':state.settings.apiKey)}" placeholder="API key..."><label>🧠 ${th?'โมเดล':'Model'}</label><select id="setModel" onchange="state.settings.model=this.value;save()"><option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash</option><option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option><option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro</option></select><button class="btn pri" style="width:100%;margin-top:10px" onclick="doSaveSettings()">${th?'บันทึก':'Save'}</button><button class="btn" style="width:100%;margin-top:4px;color:var(--coral);font-size:11px" onclick="doReset()">${th?'ล้างข้อมูลทั้งหมด':'Reset Everything'}</button></div>`;document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};}
 function reloadSettings(){const ov=document.querySelector('.modal-over');if(ov){const m=ov.querySelector('.modal');if(m)ov.remove();showSettings();}}
 function doSaveSettings(){const key=$('setKey')?.value?.trim();if(key)state.settings.apiKey=key;const proxy=$('setProxy')?.value?.trim();if(proxy)state.settings.proxyUrl=proxy;save();document.querySelector('.modal-over')?.remove();refresh3D();toast(T('Saved ✓','บันทึกแล้ว ✓'));}
-function doReset(){if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;try{localStorage.removeItem(S)}catch(e){}state={agents:[],settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};closePanel();refresh3D();updateWelcome();}
+function doReset(){if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;try{localStorage.removeItem(S)}catch(e){}state={agents:[],settings:{apiKey:'',lang:'th',model:'deepseek-v4-pro',provider:'proxy',proxyUrl:'https://das-beads-told-circumstances.trycloudflare.com'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};closePanel();refresh3D();updateWelcome();}
 
 // ====== 3D CUTE OFFICE ======
 let scene3D=null,camera,renderer,raycaster,agentMeshes=[],deskMeshes=[],particles=[];
@@ -453,7 +453,7 @@ function updateWelcome(){const w=$('welcome'),th=L==='th';if(state.agents.length
 // ====== BOOT ======
 (async function(){
   try{load();L=state.settings.lang||'th';
-    if(!state.settings)state.settings={apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'};
+    if(!state.settings)state.settings={apiKey:'',lang:'th',model:'deepseek-v4-pro',provider:'proxy',proxyUrl:'https://das-beads-told-circumstances.trycloudflare.com'};
     if(!Array.isArray(state.agents))state.agents=[];
     if(!state.agents.length&&!localStorage.getItem(S+'_seeded')){state.agents=DEMO_AGENTS.map(a=>({...a,id:uid()}));try{localStorage.setItem(S+'_seeded','1')}catch(e){}}
     L=state.settings.lang||'th';init3D();updateWelcome();fetchPrices();
