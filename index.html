@@ -101,7 +101,12 @@ input[type=file]{display:none}
 // ============ MyAI Office v2 — Production-Ready ============
 const $=id=>document.getElementById(id);
 const S='myaioffice_v2';
-let state={agents:[], settings:{apiKey:'',lang:'en',model:'gemini-2.0-flash'}, view:'office', chatId:null};
+let state={
+  agents:[], settings:{apiKey:'',lang:'en',model:'gemini-2.0-flash'},
+  view:'office', chatId:null,
+  paperBalance:10000, paperTrades:[], tradeId:0
+};
+let prices={}, priceTimer=null;
 let L='en', _toastTimer=null;
 
 function save(){try{localStorage.setItem(S,JSON.stringify(state))}catch(e){}}
@@ -157,6 +162,99 @@ async function callGemini(prompt,hist,imgData){
   }catch(e){return{error:'Network error — check connection'};}
 }
 
+
+// ====== COINGECKO PRICE FEED ======
+const COINS=['bitcoin','ethereum','solana','ripple','cardano','dogecoin','avalanche-2','polkadot'];
+const COIN_MAP={bitcoin:'BTC',ethereum:'ETH',solana:'SOL',ripple:'XRP',cardano:'ADA',dogecoin:'DOGE','avalanche-2':'AVAX',polkadot:'DOT'};
+
+async function fetchPrices(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+COINS.join(',')+'&vs_currencies=usd&include_24hr_change=true');
+    const d=await r.json();
+    for(const[id,data]of Object.entries(d)){
+      const sym=COIN_MAP[id]||id.toUpperCase();
+      prices[sym]={usd:data.usd,chg:data.usd_24h_change||0};
+    }
+  }catch(e){}
+}
+
+function priceBar(){
+  const th=L==='th';
+  let h='<div class="price-bar" id="priceBar">';
+  const syms=Object.keys(prices);
+  if(!syms.length)return h+'<span style="color:var(--muted);font-size:11px;padding:8px">'+T('Loading prices...','กำลังโหลดราคา...')+'</span></div>';
+  for(const sym of syms){
+    const p=prices[sym];const cls=p.chg>=0?'up':'down';
+    h+=`<div class="price-chip" onclick="quickTrade('${sym}')"><span class="sym">${sym}</span> <span class="val">$${p.usd<1?p.usd.toFixed(4):p.usd<10?p.usd.toFixed(2):p.usd.toLocaleString()}</span> <span class="price-chg ${cls}">${p.chg>=0?'+':''}${p.chg.toFixed(1)}%</span></div>`;
+  }
+  h+='</div>';
+  return h;
+}
+
+// ====== PAPER TRADING ======
+function quickTrade(sym){state.view='trade';render();setTimeout(()=>{
+  const s=$('tradeSym');if(s){s.value=sym;s.dispatchEvent(new Event('change'));}
+},100);}
+
+function openPaperTrade(sym,side,size){
+  const p=prices[sym];if(!p)return toast(T('Price unavailable','ราคาไม่พร้อม'));
+  const cost=size*p.usd;
+  if(cost>state.paperBalance)return toast(T('Not enough balance','เงินไม่พอ'));
+  state.paperBalance-=cost;
+  const id=++state.tradeId;
+  state.paperTrades.push({id,sym,side,size,entry:p.usd,openAt:Date.now(),closed:false,closePrice:null,pnl:null});
+  save();render();toast(`${side.toUpperCase()} ${size} ${sym} @ $${p.usd.toLocaleString()}`);
+}
+
+function closePaperTrade(id){
+  const t=state.paperTrades.find(x=>x.id===id);if(!t||t.closed)return;
+  const p=prices[t.sym];if(!p)return toast('Price unavailable');
+  const pnl=t.side==='long'?(p.usd-t.entry)*t.size:(t.entry-p.usd)*t.size;
+  t.closed=true;t.closePrice=p.usd;t.pnl=Math.round(pnl*100)/100;t.closedAt=Date.now();
+  state.paperBalance+=t.size*t.entry+pnl;
+  save();render();toast(`Closed ${t.sym}: ${pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}`);
+}
+
+function totalPnL(){
+  let pnl=0;
+  for(const t of state.paperTrades)if(t.pnl!=null)pnl+=t.pnl;
+  return pnl;
+}
+
+// ====== UPGRADED TRADER PROMPT ======
+function traderPrompt(a){
+  const r=R[a.role];
+  let priceInfo='';
+  const syms=Object.keys(prices);
+  if(syms.length){
+    priceInfo='\n\nCurrent market prices (live):\n'+syms.map(s=>{
+      const p=prices[s];return `${s}: $${p.usd} (24h: ${p.chg>=0?'+':''}${p.chg.toFixed(1)}%)`;
+    }).join('\n');
+  }
+  const openPositions=state.paperTrades.filter(t=>!t.closed);
+  let posInfo='';
+  if(openPositions.length){
+    posInfo='\n\nYour open paper positions:\n'+openPositions.map(t=>{
+      const cur=prices[t.sym]?.usd||t.entry;
+      const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;
+      return `${t.side.toUpperCase()} ${t.size} ${t.sym} @ $${t.entry} | Current: $${cur} | Unrealized: $${Math.round(upnl*100)/100}`;
+    }).join('\n');
+  }
+  return `You are "${a.name}", an AI Trader at MyAI Office.
+Specialty: Market analysis, trading signals, portfolio tracking
+${a.memory?`\nOwner context: ${a.memory}\n`:''}
+${priceInfo}${posInfo}
+Paper trading balance: $${state.paperBalance.toLocaleString()}
+
+Rules:
+- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise
+- Use the live prices above for analysis
+- Be specific about entry/exit levels when asked
+- For crypto: mention support/resistance, trend direction, volume context
+- Keep analysis concise and actionable
+- Never give financial advice — always add disclaimer`;
+}
+
 // ====== MARKDOWN RENDERER ======
 function md2html(t){
   if(!t)return'';
@@ -199,7 +297,7 @@ function copyCode(btn){
 }
 
 // ====== AGENT SYSTEM PROMPT ======
-function sysPrompt(a){
+function sysPrompt(a){if(a.role==='Trader')return traderPrompt(a);
   const r=R[a.role];
   return `You are "${a.name}", an AI ${r.en} at MyAI Office.
 Specialty: ${r.descEn}
@@ -224,6 +322,7 @@ function renderOffice(){
   app.innerHTML=`
     <header>
       <div class="h-left"><span class="logo">🏢 <b>MyAI</b> Office</span><span class="badge">${ags.length}</span></div>
+      <button class="btn sm gho" onclick="state.view='trade';render()" style="font-weight:900">📈</button>
       <button class="btn sm gho" onclick="showSettings()" title="${th?'ตั้งค่า':'Settings'}">⚙️</button>
     </header>
     <main>
@@ -354,6 +453,87 @@ function handleFile(e){
   };
   reader.readAsDataURL(file);
   e.target.value='';
+}
+
+
+// ====== TRADING VIEW ======
+function renderTrading(){
+  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const openPositions=state.paperTrades.filter(t=>!t.closed);
+  const closedTrades=state.paperTrades.filter(t=>t.closed).slice(-20).reverse();
+  const balance=state.paperBalance+(openPositions.reduce((s,t)=>{
+    const cur=prices[t.sym]?.usd||t.entry;
+    return s+t.size*t.entry+(t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size);
+  },0));
+  const totalPnl=totalPnL();
+  app.innerHTML=`
+    <header>
+      <button class="btn gho sm" onclick="state.view='office';render()">← ${th?'กลับ':'Back'}</button>
+      <div class="h-left"><span class="logo">📈 <b>${th?'เทรด':'Trading'}</b></span></div>
+      <button class="btn sm gho" onclick="showSettings()">⚙️</button>
+    </header>
+    ${priceBar()}
+    <div class="balance-bar">
+      <span>💰 ${th?'พอร์ต':'Portfolio'}: <b class="eq">$${Math.round(balance).toLocaleString()}</b></span>
+      <span style="font-size:10px;color:var(--muted)">${th?'เงินสด':'Cash'}: $${Math.round(state.paperBalance).toLocaleString()}</span>
+      <span style="margin-left:auto;color:${totalPnl>=0?'var(--leaf)':'var(--coral)'}">${totalPnl>=0?'+':''}$${Math.round(totalPnl).toLocaleString()}</span>
+    </div>
+    <main>
+      ${openPositions.length===0&&closedTrades.length===0?`
+        <div class="empty">
+          <div class="e-icon">📈</div>
+          <h2>${th?'เริ่มเทรดกระดาษ':'Start Paper Trading'}</h2>
+          <p>${th?'เทรดด้วยเงินจำลอง $10,000 — ราคาจริงจาก CoinGecko':'Trade with $10,000 virtual cash — real prices from CoinGecko.'}</p>
+        </div>
+      `:''}
+      ${openPositions.map(t=>{
+        const cur=prices[t.sym]?.usd||t.entry;
+        const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;
+        const upnlPct=(upnl/(t.size*t.entry))*100;
+        return`<div class="trade-card">
+          <div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} <span style="margin-left:auto;font-size:10px;color:var(--muted)">${new Date(t.openAt).toLocaleTimeString()}</span></div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">Entry: $${t.entry.toLocaleString()} | Now: $${cur.toLocaleString()}</div>
+          <div class="t-pnl" style="color:${upnl>=0?'var(--leaf)':'var(--coral)'}">${upnl>=0?'+':''}$${Math.round(upnl*100)/100} (${upnlPct>=0?'+':''}${upnlPct.toFixed(1)}%)</div>
+          <button class="btn sm red" style="margin-top:6px" onclick="closePaperTrade(${t.id})">${th?'ปิด':'Close'}</button>
+        </div>`;
+      }).join('')}
+      ${closedTrades.map(t=>`<div class="trade-card" style="opacity:.7">
+        <div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} ✓</div>
+        <div class="t-pnl" style="color:${t.pnl>=0?'var(--leaf)':'var(--coral)'}">${t.pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}</div>
+        <div class="t-meta">${new Date(t.closedAt||0).toLocaleDateString()}</div>
+      </div>`).join('')}
+    </main>
+    <div class="trade-form">
+      <select id="tradeSym" style="flex:1" onchange="const s=this.value;const p=prices[s];if(p){$('tradePrice').textContent='@ $'+p.usd}">${Object.keys(prices).map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <select id="tradeSide"><option value="long">LONG</option><option value="short">SHORT</option></select>
+      <input id="tradeSize" type="number" placeholder="${th?'จำนวน':'Size'}" style="width:70px" min="0.01" step="0.01" value="1">
+      <span id="tradePrice" style="font-size:11px;font-weight:800;color:var(--ink2)"></span>
+      <button class="btn pri sm" onclick="doTrade()">${th?'เทรด':'Trade'}</button>
+    </div>`;
+  setTimeout(()=>{
+    const s=$('tradeSym');if(s&&prices[s.value]){$('tradePrice').textContent='@ $'+prices[s.value].usd}
+    initPriceTimer();
+  },50);
+}
+
+function doTrade(){
+  const sym=$('tradeSym')?.value;
+  const side=$('tradeSide')?.value;
+  const size=parseFloat($('tradeSize')?.value);
+  if(!sym||!side||!(size>0))return toast(T('Fill all fields','กรอกให้ครบ'));
+  openPaperTrade(sym,side,size);
+}
+
+function initPriceTimer(){
+  if(priceTimer)return;
+  fetchPrices().then(()=>{if(state.view==='trade')render();});
+  priceTimer=setInterval(async()=>{
+    await fetchPrices();
+    if(state.view==='trade'){
+      const bar=$('priceBar');
+      if(bar)bar.outerHTML=priceBar();
+    }
+  },15000);
 }
 
 // ====== MODALS ======
