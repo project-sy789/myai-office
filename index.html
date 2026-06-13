@@ -5,138 +5,138 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>MyAI Office — 3D AI Team</title>
 <meta name="description" content="Hire AI agents, assign roles, and get real work done — in 3D.">
-<meta name="theme-color" content="#7c5cff">
+<meta name="theme-color" content="#6c5ce7">
 <style>
 :root{
-  --bg:#0f0b1a;--bg2:#1a1530;--bg3:#221d3a;--card:#1e1940;--cardHover:#25204d;
-  --ink:#f0edfa;--ink2:#b8b0d0;--muted:#7068a0;--line:#2a2550;
-  --grape:#7c5cff;--coral:#ff6b5f;--leaf:#22c97a;--gold:#ffb43c;--pink:#ff7eb6;--sky:#38bdf8;
+  --bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--card:#1a1a2e;--cardHover:#1f2b47;
+  --ink:#f5f0ff;--ink2:#c4b5e3;--muted:#8b7aaa;--line:#2a2560;
+  --grape:#6c5ce7;--coral:#fd79a8;--leaf:#00cec9;--gold:#fdcb6e;--pink:#fd79a8;--sky:#74b9ff;
+  --warm:#ffeaa7;--rose:#fab1a0;--mint:#55efc4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;touch-action:pan-x pan-y pinch-zoom}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;touch-action:pan-x pan-y pinch-zoom}
 
-/* 3D Canvas — always full screen */
 #gl{position:fixed;inset:0;z-index:1}
 #gl canvas{display:block}
 
-/* Agent labels — positioned via JS */
 #labels{position:fixed;inset:0;z-index:2;pointer-events:none}
 .alabel{position:absolute;transform:translate(-50%,-50%);text-align:center;pointer-events:auto;cursor:pointer;transition:opacity .3s}
-.alabel .al-dot{width:12px;height:12px;border-radius:50%;margin:0 auto 4px;border:2px solid rgba(255,255,255,.4);transition:all .3s}
-.alabel .al-dot.idle{box-shadow:0 0 10px currentColor}
-.alabel .al-dot.work{animation:pulse .8s infinite}
-.alabel .al-name{font-weight:800;font-size:13px;text-shadow:0 1px 6px rgba(0,0,0,.8);line-height:1.2}
-.alabel .al-role{font-size:9px;opacity:.7;text-transform:uppercase;letter-spacing:.05em}
-.alabel .al-status{font-size:9px;opacity:.8;margin-top:1px}
+.alabel .al-dot{width:14px;height:14px;border-radius:50%;margin:0 auto 5px;border:2.5px solid rgba(255,255,255,.5);transition:all .3s;backdrop-filter:blur(2px)}
+.alabel .al-dot.idle{box-shadow:0 0 12px currentColor,0 0 24px currentColor}
+.alabel .al-dot.work{animation:pulse .7s infinite}
+.alabel .al-name{font-weight:800;font-size:13px;text-shadow:0 2px 8px rgba(0,0,0,.6),0 0 20px rgba(0,0,0,.4);line-height:1.2;letter-spacing:.02em}
+.alabel .al-role{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.08em;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.alabel .al-status{font-size:9px;opacity:.9;margin-top:2px;font-weight:600}
+.alabel:hover{transform:translate(-50%,-50%) scale(1.1)}
 .alabel:hover .al-name{color:#fff!important}
-@keyframes pulse{0%,100%{box-shadow:0 0 8px currentColor}50%{box-shadow:0 0 20px currentColor,0 0 30px currentColor}}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px currentColor,0 0 16px currentColor;transform:scale(1)}50%{box-shadow:0 0 20px currentColor,0 0 40px currentColor;transform:scale(1.2)}}
 
-/* HUD bar */
-#hud{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:8px;padding:8px 14px;background:rgba(26,21,48,.9);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
-#hud button{display:inline-flex;align-items:center;gap:5px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .15s;background:var(--bg3);color:var(--ink)}
-#hud button:hover{filter:brightness(1.2)}
-#hud button.pri{background:var(--grape);color:#fff}
-#hud button.red{background:var(--coral);color:#fff}
-#hud .badge{font-size:10px;padding:2px 6px;border-radius:5px;background:var(--grape);color:#fff;margin-left:2px}
+#hud{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:8px;padding:10px 16px;background:rgba(22,33,62,.85);backdrop-filter:blur(20px);border:1px solid rgba(108,92,231,.3);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#hud button{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:14px;font-weight:700;font-size:13px;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .2s;background:rgba(255,255,255,.08);color:var(--ink);letter-spacing:.02em}
+#hud button:hover{background:rgba(108,92,231,.4);transform:translateY(-2px);box-shadow:0 4px 16px rgba(108,92,231,.3)}
+#hud button.pri{background:var(--grape);color:#fff;box-shadow:0 4px 16px rgba(108,92,231,.4)}
+#hud button.pri:hover{box-shadow:0 6px 24px rgba(108,92,231,.5)}
+#hud .badge{font-size:10px;padding:2px 7px;border-radius:8px;background:var(--pink);color:#fff;margin-left:3px}
 
-/* Panel — slides up from bottom */
 #panel{position:fixed;inset:0;z-index:20;pointer-events:none;display:flex;flex-direction:column}
 #panel.active{pointer-events:auto}
-#panel .p-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .3s}
+#panel .p-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:opacity .3s}
 #panel.active .p-backdrop{opacity:1}
-#panel .p-sheet{position:absolute;bottom:0;left:0;right:0;max-height:80vh;background:var(--bg2);border-top:1px solid var(--line);border-radius:18px 18px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#panel .p-sheet{position:absolute;bottom:0;left:0;right:0;max-height:82vh;background:rgba(22,33,62,.97);backdrop-filter:blur(24px);border-top:1px solid rgba(108,92,231,.2);border-radius:22px 22px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.5)}
 #panel.active .p-sheet{transform:translateY(0)}
-#panel .p-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
-#panel .p-head .p-title{font-weight:900;font-size:15px;flex:1;min-width:0}
-#panel .p-head .p-close{font-size:20px;cursor:pointer;color:var(--muted);padding:4px}
-#panel .p-body{flex:1;overflow-y:auto;padding:12px}
+#panel .p-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+#panel .p-head .p-title{font-weight:800;font-size:15px;flex:1;min-width:0;letter-spacing:.02em}
+#panel .p-head .p-close{font-size:22px;cursor:pointer;color:var(--muted);padding:4px 8px;border-radius:10px;transition:all .2s}
+#panel .p-head .p-close:hover{background:rgba(255,255,255,.08);color:var(--coral)}
+#panel .p-body{flex:1;overflow-y:auto;padding:14px}
 
-/* Welcome overlay */
 #welcome{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;pointer-events:none}
-#welcome .w-card{background:rgba(26,21,48,.95);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:18px;padding:32px 24px;text-align:center;max-width:340px;pointer-events:auto}
-#welcome .w-icon{font-size:56px;margin-bottom:12px}
-#welcome h2{font-weight:900;margin-bottom:6px;font-size:20px}
-#welcome p{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+#welcome .w-card{background:rgba(22,33,62,.92);backdrop-filter:blur(20px);border:1px solid rgba(108,92,231,.2);border-radius:24px;padding:36px 28px;text-align:center;max-width:350px;pointer-events:auto;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+#welcome .w-icon{font-size:60px;margin-bottom:14px;animation:float 3s ease-in-out infinite}
+#welcome h2{font-weight:900;margin-bottom:8px;font-size:21px;letter-spacing:.02em}
+#welcome p{font-size:13.5px;color:var(--muted);margin-bottom:18px;line-height:1.6}
 #welcome.hidden{display:none}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-/* Chat messages */
-.msg{max-width:88%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.5;animation:msgIn .25s ease;margin-bottom:6px}
-.msg.user{align-self:flex-end;background:var(--grape);color:#fff;border-bottom-right-radius:4px}
-.msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg{max-width:88%;padding:10px 16px;border-radius:18px;font-size:13.5px;line-height:1.55;animation:msgIn .25s ease;margin-bottom:6px}
+.msg.user{align-self:flex-end;background:var(--grape);color:#fff;border-bottom-right-radius:6px}
+.msg.ai{align-self:flex-start;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-bottom-left-radius:6px}
 .msg.ai .sender{font-size:10px;font-weight:800;color:var(--muted);margin-bottom:4px}
 .msg p{margin:4px 0}
-.msg code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:12px;font-family:'SF Mono',monospace}
-.msg pre{background:#0d0a1a;border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;overflow-x:auto;font-size:12px;line-height:1.4;position:relative}
-.msg pre .copy{position:absolute;top:4px;right:4px;padding:3px 8px;border-radius:5px;font-size:10px;background:var(--bg3);color:var(--ink2);cursor:pointer;border:none;font-weight:700;opacity:0;transition:opacity .2s}
+.msg code{background:rgba(0,0,0,.3);padding:2px 7px;border-radius:5px;font-size:12px;font-family:'SF Mono','Cascadia Code',monospace}
+.msg pre{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin:8px 0;overflow-x:auto;font-size:12px;line-height:1.5;position:relative}
+.msg pre .copy{position:absolute;top:6px;right:6px;padding:4px 10px;border-radius:6px;font-size:10px;background:rgba(255,255,255,.1);color:var(--ink2);cursor:pointer;border:none;font-weight:700;opacity:0;transition:opacity .2s}
 .msg pre:hover .copy{opacity:1}
-.msg blockquote{border-left:3px solid var(--grape);padding-left:10px;color:var(--ink2);margin:6px 0}
+.msg blockquote{border-left:3px solid var(--grape);padding-left:12px;color:var(--ink2);margin:6px 0}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.typing{padding:8px 14px;background:var(--card);border-radius:14px;font-size:12px;color:var(--muted);display:flex;gap:3px;align-self:flex-start}
-.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:dotBounce 1.4s infinite}
+.typing{padding:8px 16px;background:rgba(255,255,255,.04);border-radius:16px;font-size:12px;color:var(--muted);display:flex;gap:4px;align-self:flex-start}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:dotBounce 1.4s infinite}
 .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
-@keyframes dotBounce{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+@keyframes dotBounce{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-5px)}}
 
 .chat-wrap{display:flex;flex-direction:column;height:100%}
-.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
-.chat-bar{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--bg3);flex-shrink:0;align-items:flex-end}
-.chat-bar textarea{flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13.5px;outline:none;font-family:inherit;resize:none;min-height:40px;max-height:120px;line-height:1.4}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:4px}
+.chat-bar{display:flex;gap:8px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;align-items:flex-end}
+.chat-bar textarea{flex:1;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:var(--ink);font-size:13.5px;outline:none;font-family:inherit;resize:none;min-height:42px;max-height:120px;line-height:1.5}
 .chat-bar textarea:focus{border-color:var(--grape)}
-.chat-bar .send-btn{padding:9px 16px;border-radius:10px;background:var(--grape);color:#fff;font-weight:800;font-size:13px;border:none;cursor:pointer}
-.quick-acts{display:flex;gap:5px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);background:var(--bg3);flex-shrink:0}
-.quick-acts button{padding:5px 9px;border-radius:7px;font-size:10.5px;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--ink2);cursor:pointer;white-space:nowrap}
+.chat-bar .send-btn{padding:10px 18px;border-radius:14px;background:var(--grape);color:#fff;font-weight:800;font-size:13px;border:none;cursor:pointer;transition:all .2s}
+.chat-bar .send-btn:hover{filter:brightness(1.1);transform:scale(1.02)}
+.quick-acts{display:flex;gap:5px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.1);flex-shrink:0}
+.quick-acts button{padding:6px 10px;border-radius:8px;font-size:10.5px;font-weight:700;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--ink2);cursor:pointer;white-space:nowrap;transition:all .15s}
 .quick-acts button:hover{background:var(--grape);color:#fff;border-color:var(--grape)}
 
-/* Price bar */
-.price-bar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;background:var(--bg3);border-bottom:1px solid var(--line)}
-.price-chip{flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg);white-space:nowrap}
-.price-chip .sym{color:var(--ink);margin-right:4px}
+.price-bar{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.04)}
+.price-chip{flex-shrink:0;padding:6px 12px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.04);white-space:nowrap;transition:all .15s}
+.price-chip:hover{background:rgba(108,92,231,.2)}
+.price-chip .sym{color:var(--ink);margin-right:5px}
 .price-chip .val{color:var(--ink2)}
-.price-chip .chg{font-size:10px;margin-left:4px}
-.price-chip .chg.up{color:var(--leaf)}.price-chip .chg.down{color:var(--coral)}
-.balance-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;font-size:12px;background:var(--bg2);border-bottom:1px solid var(--line);flex-shrink:0;flex-wrap:wrap}
-.trade-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.price-chip .chg{font-size:10px;margin-left:5px}
+.price-chip .chg.up{color:var(--mint)}.price-chip .chg.down{color:var(--coral)}
+.balance-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;font-size:12px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;flex-wrap:wrap}
+.trade-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;margin-bottom:8px;transition:all .2s}
+.trade-card:hover{border-color:rgba(108,92,231,.3)}
 .trade-card .t-head{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px}
-.trade-card .t-side{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:900;text-transform:uppercase}
-.trade-card .t-side.long{background:#22c97a22;color:var(--leaf)}
-.trade-card .t-side.short{background:#ff6b5f22;color:var(--coral)}
-.trade-card .t-pnl{font-weight:900;font-size:14px;margin-top:4px}
+.trade-card .t-side{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase}
+.trade-card .t-side.long{background:rgba(0,206,201,.15);color:var(--mint)}
+.trade-card .t-side.short{background:rgba(253,121,168,.15);color:var(--coral)}
+.trade-card .t-pnl{font-weight:900;font-size:15px;margin-top:6px}
 .trade-card .t-meta{font-size:10px;color:var(--muted);margin-top:4px}
-.trade-form{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line);background:var(--bg3);flex-shrink:0;align-items:center;flex-wrap:wrap}
-.trade-form select,.trade-form input{padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-family:inherit}
+.trade-form{display:flex;gap:6px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0;align-items:center;flex-wrap:wrap}
+.trade-form select,.trade-form input{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:var(--ink);font-size:12px;font-family:inherit}
 .trade-form select:focus,.trade-form input:focus{border-color:var(--grape);outline:none}
 
-/* Modal */
-.modal-over{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:16px;animation:fadeIn .2s}
+.modal-over{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
-.modal h3{font-weight:900;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:16px}
-.modal h3 .close{margin-left:auto;cursor:pointer;font-size:18px;color:var(--muted)}
-.modal label{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
-.modal input,.modal select,.modal textarea{width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13.5px;font-family:inherit;outline:none}
+.modal{background:var(--bg2);border:1px solid rgba(108,92,231,.2);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.modal h3{font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:17px}
+.modal h3 .close{margin-left:auto;cursor:pointer;font-size:20px;color:var(--muted);padding:4px 8px;border-radius:8px;transition:all .2s}
+.modal h3 .close:hover{background:rgba(255,255,255,.08);color:var(--coral)}
+.modal label{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}
+.modal input,.modal select,.modal textarea{width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:var(--ink);font-size:13.5px;font-family:inherit;outline:none}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--grape)}
 .modal textarea{resize:vertical;min-height:70px}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:12px;font-weight:800;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--grape);color:#fff;padding:10px 24px;border-radius:14px;font-weight:800;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 32px rgba(108,92,231,.4)}
 .toast.show{opacity:1}
 input[type=file]{display:none}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;font-weight:700;font-size:12.5px;cursor:pointer;border:none;background:var(--bg3);color:var(--ink);transition:all .15s;font-family:inherit;white-space:nowrap}
-.btn:hover{filter:brightness(1.15)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-weight:700;font-size:12.5px;cursor:pointer;border:none;background:rgba(255,255,255,.08);color:var(--ink);transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn:hover{filter:brightness(1.2)}
 .btn.pri{background:var(--grape);color:#fff}
 .btn.red{background:var(--coral);color:#fff}
-.btn.sm{padding:5px 9px;font-size:11px}
+.btn.sm{padding:5px 10px;font-size:11px}
 .empty{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty h2{font-weight:900;margin-bottom:6px;color:var(--ink)}
 .empty p{font-size:13px;margin-bottom:14px;line-height:1.4}
-.img-preview{max-width:120px;max-height:80px;border-radius:8px;margin:4px 0;border:1px solid var(--line)}
-@media(max-width:400px){#hud{padding:6px 10px;gap:4px}#hud button{padding:7px 10px;font-size:11px}}
+.img-preview{max-width:120px;max-height:80px;border-radius:8px;margin:4px 0;border:1px solid rgba(255,255,255,.1)}
+@media(max-width:400px){#hud{padding:8px 12px;gap:4px;border-radius:16px}#hud button{padding:8px 12px;font-size:11px;border-radius:10px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
 <div id="gl"></div>
 <div id="labels"></div>
-<div id="welcome"><div class="w-card"><div class="w-icon">🏢</div><h2 id="wTitle">สร้างทีม AI ของคุณ</h2><p id="wDesc">จ้างเอเจนต์ AI มาทำงานให้คุณ — เห็นพวกเขานั่งทำงานในออฟฟิศ 3D แบบ real-time</p><button class="btn pri" onclick="showHire()" style="font-size:14px;padding:10px 20px">+ จ้างเอเจนต์คนแรก</button></div></div>
+<div id="welcome"><div class="w-card"><div class="w-icon">🏢</div><h2 id="wTitle">สร้างทีม AI ของคุณ</h2><p id="wDesc">จ้างเอเจนต์ AI มาทำงานให้คุณ — เห็นพวกเขานั่งทำงานในออฟฟิศ 3D แบบ real-time</p><button class="btn pri" onclick="showHire()" style="font-size:14px;padding:12px 24px;border-radius:14px">✨ จ้างเอเจนต์คนแรก</button></div></div>
 <div id="hud">
-  <button onclick="showHire()">➕ <span id="hudHire">จ้าง</span></button>
+  <button onclick="showHire()">✨ <span id="hudHire">จ้าง</span></button>
   <button onclick="toggleTrade()">📈 <span id="hudTrade">เทรด</span></button>
   <button onclick="showSettings()">⚙️</button>
 </div>
@@ -144,16 +144,16 @@ input[type=file]{display:none}
 <div id="toast" class="toast"></div>
 <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
 <script>
-// ============ MyAI Office v6 — 3D-First ============
+// ============ MyAI Office v7 — Cute 3D Office ============
 const $=id=>document.getElementById(id);
-const S='myaioffice_v6';
+const S='myaioffice_v7';
 let state={
   agents:[], settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},
   view:'office', chatId:null, panelMode:null,
   paperBalance:10000, paperTrades:[], tradeId:0
 };
 const DEMO_AGENTS=[
-  {id:'demo_dev',role:'Developer',name:'Mint',memory:'ตอบเป็นภาษาไทย',chat:[],status:'idle',createdAt:Date.now()-86400000},
+  {id:'demo_dev',role:'Developer',name:'Mint',memory:'ตอบเป็นภาษาไทย เขียนโค้ดสวย',chat:[],status:'idle',createdAt:Date.now()-86400000},
   {id:'demo_trader',role:'Trader',name:'Boss',memory:'วิเคราะห์เด่น BTC ETH SOL',chat:[],status:'idle',createdAt:Date.now()-86400000}
 ];
 let prices={}, priceTimer=null, L='en', _toastTimer=null;
@@ -164,35 +164,31 @@ const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const jesc=s=>String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 const uid=()=>'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const T=(en,th)=>L==='th'?th:en;
-function toast(m,d=2500){
-  const t=$('toast');t.textContent=m;t.classList.add('show');
-  clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('show'),d);
-}
+function toast(m,d=2500){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('show'),d);}
 
-// ====== ROLES ======
 const R={
-  Developer:{icon:'💻',color:'#38bdf8',en:'Developer',th:'นักพัฒนา',descEn:'Writes code, debugs, builds apps & APIs',descTh:'เขียนโค้ด แก้บั๊ค สร้างแอพและ API',
+  Developer:{icon:'💻',color:'#74b9ff',en:'Developer',th:'นักพัฒนา',descEn:'Writes code, debugs, builds apps & APIs',descTh:'เขียนโค้ด แก้บั๊ค สร้างแอพและ API',
     quickEn:['Write a Python script to...','Debug this code:','Build a REST API for...','Create a React component...'],
     quickTh:['เขียน Python script สำหรับ...','แก้บั๊คโค้ดนี้:','สร้าง REST API สำหรับ...','สร้าง React component...']},
-  Content:{icon:'🎬',color:'#ff7eb6',en:'Content Creator',th:'ครีเอเตอร์',descEn:'Creates videos, posts, reels, captions',descTh:'ทำวิดีโอ โพสต์ Reels แคปชั่น',
+  Content:{icon:'🎬',color:'#fd79a8',en:'Content Creator',th:'ครีเอเตอร์',descEn:'Creates videos, posts, reels, captions',descTh:'ทำวิดีโอ โพสต์ Reels แคปชั่น',
     quickEn:['Write a TikTok script about...','Draft 5 social media posts...','Create a YouTube video outline...','Write engaging captions for...'],
     quickTh:['เขียนสคริปต์ TikTok...','ร่างโพสต์โซเชียล 5 อัน...','ทำโครงวิดีโอ YouTube...','เขียนแคปชั่นสำหรับ...']},
-  Trader:{icon:'📈',color:'#22c97a',en:'Trader',th:'นักเทรด',descEn:'Analyzes markets, tracks PnL, trading signals',descTh:'วิเคราะห์ตลาด ติดตามพอร์ต สัญญาณเทรด',
+  Trader:{icon:'📈',color:'#00cec9',en:'Trader',th:'นักเทรด',descEn:'Analyzes markets, tracks PnL, trading signals',descTh:'วิเคราะห์ตลาด ติดตามพอร์ต สัญญาณเทรด',
     quickEn:['Analyze BTC/USD trend...','Calculate risk/reward for...','Review my portfolio...','What are key levels for...'],
     quickTh:['วิเคราะห์แนวโน้ม BTC...','คำนวณ risk/reward...','รีวิวพอร์ตโฟลิโอ...','แนวรับแนวต้านของ...']},
-  Designer:{icon:'🎨',color:'#ffb43c',en:'Designer',th:'ดีไซเนอร์',descEn:'Graphics, logos, thumbnails, branding',descTh:'กราฟิก โลโก้ ธัมบ์เนล แบรนด์ดิ้ง',
+  Designer:{icon:'🎨',color:'#fdcb6e',en:'Designer',th:'ดีไซเนอร์',descEn:'Graphics, logos, thumbnails, branding',descTh:'กราฟิก โลโก้ ธัมบ์เนล แบรนด์ดิ้ง',
     quickEn:['Design a logo concept for...','Suggest a color palette for...','Create thumbnail ideas for...','Brand identity for...'],
     quickTh:['ออกแบบโลโก้สำหรับ...','แนะนำชุดสีสำหรับ...','ไอเดียธัมบ์เนล...','สร้างแบรนด์ identity...']},
-  Research:{icon:'🔍',color:'#7c5cff',en:'Researcher',th:'นักวิจัย',descEn:'Summarizes, analyzes data, writes reports',descTh:'สรุป วิเคราะห์ข้อมูล เขียนรายงาน',
+  Research:{icon:'🔍',color:'#6c5ce7',en:'Researcher',th:'นักวิจัย',descEn:'Summarizes, analyzes data, writes reports',descTh:'สรุป วิเคราะห์ข้อมูล เขียนรายงาน',
     quickEn:['Research the market for...','Summarize this topic:','Compare X vs Y...','Find latest trends in...'],
     quickTh:['วิจัยตลาดสำหรับ...','สรุปหัวข้อนี้:','เปรียบเทียบ X กับ Y...','หาเทรนด์ล่าสุดเกี่ยวกับ...']},
-  Admin:{icon:'📋',color:'#a78bfa',en:'Admin',th:'แอดมิน',descEn:'Customer replies, schedules, documentation',descTh:'ตอบลูกค้า จัดตาราง ทำเอกสาร',
+  Admin:{icon:'📋',color:'#fab1a0',en:'Admin',th:'แอดมิน',descEn:'Customer replies, schedules, documentation',descTh:'ตอบลูกค้า จัดตาราง ทำเอกสาร',
     quickEn:['Draft an email response to...','Create a schedule for...','Write documentation for...','Customer FAQ for...'],
     quickTh:['ร่างอีเมลตอบกลับ...','สร้างตารางงานสำหรับ...','เขียนเอกสารสำหรับ...','FAQ ลูกค้าสำหรับ...']}
 };
 const RNAMES=Object.keys(R);
 
-// ====== AI API (unchanged) ======
+// ====== AI API ======
 async function callAI(prompt,hist,imgData){
   const s=state.settings;
   if(s.provider==='opencode')return callOpenCode(prompt,hist);
@@ -201,271 +197,184 @@ async function callAI(prompt,hist,imgData){
 }
 async function callOpenCode(prompt,hist){
   const key=state.settings.apiKey;if(!key)return{error:'No API key — open ⚙️ Settings'};
-  try{
-    const res=await fetch('https://opencode.ai/zen/go/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role==='user'?'user':'assistant',content:m.text})),{role:'user',content:prompt}],max_tokens:4096,temperature:0.7})});
-    const d=await res.json();if(d.error)return{error:d.error.message||'API error'};
-    let text=d.choices?.[0]?.message?.content||'';
-    if(!text&&d.choices?.[0]?.message?.reasoning_content)text='[คิดแล้ว]\n\n'+d.choices[0].message.reasoning_content.slice(-500);
-    return{text:text||'(empty)'};
-  }catch(e){return{error:'Network error — OpenCode may block browser CORS. Try Proxy mode instead.'};}
+  try{const res=await fetch('https://opencode.ai/zen/go/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role==='user'?'user':'assistant',content:m.text})),{role:'user',content:prompt}],max_tokens:4096,temperature:0.7})});const d=await res.json();if(d.error)return{error:d.error.message||'API error'};let text=d.choices?.[0]?.message?.content||'';if(!text&&d.choices?.[0]?.message?.reasoning_content)text='[คิดแล้ว]\n\n'+d.choices[0].message.reasoning_content.slice(-500);return{text:text||'(empty)'};}catch(e){return{error:'Network error — OpenCode may block browser CORS. Try Proxy mode instead.'};}
 }
 async function callProxy(prompt,hist,imgData){
   const url=(state.settings.proxyUrl||'http://localhost:8765')+'/api/chat';
-  try{
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:state.settings.model||'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.text})),{role:'user',content:prompt}],max_tokens:4096})});
-    const d=await res.json();if(d.error)return{error:d.error};return{text:d.choices?.[0]?.message?.content||'(empty)'};
-  }catch(e){return{error:'Proxy not reachable — start the proxy server or use Gemini instead.'};}
+  try{const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:state.settings.model||'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.text})),{role:'user',content:prompt}],max_tokens:4096})});const d=await res.json();if(d.error)return{error:d.error};return{text:d.choices?.[0]?.message?.content||'(empty)'};}catch(e){return{error:'Proxy not reachable — start the proxy server or use Gemini instead.'};}
 }
 async function callGemini(prompt,hist,imgData){
-  const key=state.settings.apiKey;if(!key)return{error:'No API key — open ⚙️ Settings'};
-  const model=state.settings.model||'gemini-2.0-flash';
-  const parts=[{text:prompt}];if(imgData)parts.push({inline_data:{mime_type:imgData.mime||'image/png',data:imgData.data}});
-  try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[...hist.map(h=>({role:h.role==='user'?'user':'model',parts:[{text:h.text}]})),{role:'user',parts}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});
-    const d=await res.json();if(d.error)return{error:d.error.message||'API error'};
-    return{text:d.candidates?.[0]?.content?.parts?.[0]?.text||'(empty response)'};
-  }catch(e){return{error:'Network error — check connection'};}
+  const key=state.settings.apiKey;if(!key)return{error:'No API key — open ⚙️ Settings'};const model=state.settings.model||'gemini-2.0-flash';const parts=[{text:prompt}];if(imgData)parts.push({inline_data:{mime_type:imgData.mime||'image/png',data:imgData.data}});
+  try{const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[...hist.map(h=>({role:h.role==='user'?'user':'model',parts:[{text:h.text}]})),{role:'user',parts}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})});const d=await res.json();if(d.error)return{error:d.error.message||'API error'};return{text:d.candidates?.[0]?.content?.parts?.[0]?.text||'(empty response)'};}catch(e){return{error:'Network error — check connection'};}
 }
 
 // ====== COINGECKO ======
 const COINS=['bitcoin','ethereum','solana','ripple','cardano','dogecoin','avalanche-2','polkadot'];
 const COIN_MAP={bitcoin:'BTC',ethereum:'ETH',solana:'SOL',ripple:'XRP',cardano:'ADA',dogecoin:'DOGE','avalanche-2':'AVAX',polkadot:'DOT'};
-async function fetchPrices(){
-  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+COINS.join(',')+'&vs_currencies=usd&include_24hr_change=true');
-    const d=await r.json();for(const[id,data]of Object.entries(d)){const sym=COIN_MAP[id]||id.toUpperCase();prices[sym]={usd:data.usd,chg:data.usd_24h_change||0};}}catch(e){}
-}
-function priceBarHTML(){
-  let h='<div class="price-bar" id="priceBar">';const syms=Object.keys(prices);
-  if(!syms.length)return h+'<span style="color:var(--muted);font-size:11px;padding:8px">'+T('Loading prices...','กำลังโหลดราคา...')+'</span></div>';
-  for(const sym of syms){const p=prices[sym];const cls=p.chg>=0?'up':'down';
-    h+=`<div class="price-chip" onclick="quickTrade('${sym}')"><span class="sym">${sym}</span><span class="val">$${p.usd<1?p.usd.toFixed(4):p.usd<10?p.usd.toFixed(2):p.usd.toLocaleString()}</span><span class="chg ${cls}">${p.chg>=0?'+':''}${p.chg.toFixed(1)}%</span></div>`;}
-  h+='</div>';return h;
-}
+async function fetchPrices(){try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+COINS.join(',')+'&vs_currencies=usd&include_24hr_change=true');const d=await r.json();for(const[id,data]of Object.entries(d)){const sym=COIN_MAP[id]||id.toUpperCase();prices[sym]={usd:data.usd,chg:data.usd_24h_change||0};}}catch(e){}}
+function priceBarHTML(){let h='<div class="price-bar" id="priceBar">';const syms=Object.keys(prices);if(!syms.length)return h+'<span style="color:var(--muted);font-size:11px;padding:8px">'+T('Loading prices...','กำลังโหลดราคา...')+'</span></div>';for(const sym of syms){const p=prices[sym];const cls=p.chg>=0?'up':'down';h+=`<div class="price-chip" onclick="quickTrade('${sym}')"><span class="sym">${sym}</span><span class="val">$${p.usd<1?p.usd.toFixed(4):p.usd<10?p.usd.toFixed(2):p.usd.toLocaleString()}</span><span class="chg ${cls}">${p.chg>=0?'+':''}${p.chg.toFixed(1)}%</span></div>`;}h+='</div>';return h;}
 function quickTrade(sym){toggleTrade();setTimeout(()=>{const s=$('tradeSym');if(s){s.value=sym;s.dispatchEvent(new Event('change'));}},300);}
-
-// ====== PAPER TRADING ======
-function openPaperTrade(sym,side,size){
-  const p=prices[sym];if(!p)return toast(T('Price unavailable','ราคาไม่พร้อม'));
-  const cost=size*p.usd;if(cost>state.paperBalance)return toast(T('Not enough balance','เงินไม่พอ'));
-  state.paperBalance-=cost;const id=++state.tradeId;
-  state.paperTrades.push({id,sym,side,size,entry:p.usd,openAt:Date.now(),closed:false,closePrice:null,pnl:null});
-  save();renderTrade();toast(`${side.toUpperCase()} ${size} ${sym} @ $${p.usd.toLocaleString()}`);
-}
-function closePaperTrade(id){
-  const t=state.paperTrades.find(x=>x.id===id);if(!t||t.closed)return;
-  const p=prices[t.sym];if(!p)return toast('Price unavailable');
-  const pnl=t.side==='long'?(p.usd-t.entry)*t.size:(t.entry-p.usd)*t.size;
-  t.closed=true;t.closePrice=p.usd;t.pnl=Math.round(pnl*100)/100;t.closedAt=Date.now();
-  state.paperBalance+=t.size*t.entry+pnl;save();renderTrade();
-  toast(`Closed ${t.sym}: ${pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}`);
-}
+function openPaperTrade(sym,side,size){const p=prices[sym];if(!p)return toast(T('Price unavailable','ราคาไม่พร้อม'));const cost=size*p.usd;if(cost>state.paperBalance)return toast(T('Not enough balance','เงินไม่พอ'));state.paperBalance-=cost;const id=++state.tradeId;state.paperTrades.push({id,sym,side,size,entry:p.usd,openAt:Date.now(),closed:false,closePrice:null,pnl:null});save();renderTrade();toast(`${side.toUpperCase()} ${size} ${sym} @ $${p.usd.toLocaleString()}`);}
+function closePaperTrade(id){const t=state.paperTrades.find(x=>x.id===id);if(!t||t.closed)return;const p=prices[t.sym];if(!p)return toast('Price unavailable');const pnl=t.side==='long'?(p.usd-t.entry)*t.size:(t.entry-p.usd)*t.size;t.closed=true;t.closePrice=p.usd;t.pnl=Math.round(pnl*100)/100;t.closedAt=Date.now();state.paperBalance+=t.size*t.entry+pnl;save();renderTrade();toast(`Closed ${t.sym}: ${pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}`);}
 function totalPnL(){let pnl=0;for(const t of state.paperTrades)if(t.pnl!=null)pnl+=t.pnl;return pnl;}
-function doTrade(){
-  const sym=$('tradeSym')?.value,side=$('tradeSide')?.value,size=parseFloat($('tradeSize')?.value);
-  if(!sym||!side||!(size>0))return toast(T('Fill all fields','กรอกให้ครบ'));
-  openPaperTrade(sym,side,size);
-}
+function doTrade(){const sym=$('tradeSym')?.value,side=$('tradeSide')?.value,size=parseFloat($('tradeSize')?.value);if(!sym||!side||!(size>0))return toast(T('Fill all fields','กรอกให้ครบ'));openPaperTrade(sym,side,size);}
 
 // ====== MARKDOWN ======
-function md2html(t){
-  if(!t)return'';let h=esc(t);
-  h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>
-    '<pre><span class="lang" style="position:absolute;top:6px;right:36px;font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase">'+esc(lang||'')+'</span><button class="copy" onclick="copyCode(this)">Copy</button>'+esc(code.trimEnd())+'</pre>');
-  h=h.replace(/`([^`]+)`/g,'<code>$1</code>');
-  h=h.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
-  h=h.replace(/^### (.+)$/gm,'<strong>$1</strong>');h=h.replace(/^## (.+)$/gm,'<strong style="font-size:1.1em">$1</strong>');h=h.replace(/^# (.+)$/gm,'<strong style="font-size:1.2em">$1</strong>');
-  h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');
-  h=h.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
-  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
-  h=h.replace(/\n\n/g,'</p><p>');h=h.replace(/\n/g,'<br>');h='<p>'+h+'</p>';h=h.replace(/<p>\s*<\/p>/g,'');
-  return h;
-}
+function md2html(t){if(!t)return'';let h=esc(t);h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>'<pre><span class="lang" style="position:absolute;top:6px;right:36px;font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase">'+esc(lang||'')+'</span><button class="copy" onclick="copyCode(this)">Copy</button>'+esc(code.trimEnd())+'</pre>');h=h.replace(/`([^`]+)`/g,'<code>$1</code>');h=h.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');h=h.replace(/^### (.+)$/gm,'<strong>$1</strong>');h=h.replace(/^## (.+)$/gm,'<strong style="font-size:1.1em">$1</strong>');h=h.replace(/^# (.+)$/gm,'<strong style="font-size:1.2em">$1</strong>');h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');h=h.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');h=h.replace(/\n\n/g,'</p><p>');h=h.replace(/\n/g,'<br>');h='<p>'+h+'</p>';h=h.replace(/<p>\s*<\/p>/g,'');return h;}
 function copyCode(btn){const code=btn.parentElement.textContent.replace('Copy','').trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);}).catch(()=>toast('Copy failed'));}
 
-// ====== SYSTEM PROMPT ======
-function traderPrompt(a){
-  let priceInfo='';const syms=Object.keys(prices);
-  if(syms.length)priceInfo='\n\nCurrent market prices (live):\n'+syms.map(s=>{const p=prices[s];return `${s}: $${p.usd} (24h: ${p.chg>=0?'+':''}${p.chg.toFixed(1)}%)`;}).join('\n');
-  const openPositions=state.paperTrades.filter(t=>!t.closed);
-  let posInfo='';if(openPositions.length)posInfo='\n\nYour open paper positions:\n'+openPositions.map(t=>{const cur=prices[t.sym]?.usd||t.entry;const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;return `${t.side.toUpperCase()} ${t.size} ${t.sym} @ $${t.entry} | Current: $${cur} | Unrealized: $${Math.round(upnl*100)/100}`;}).join('\n');
-  return `You are "${a.name}", an AI Trader at MyAI Office.\nSpecialty: Market analysis, trading signals, portfolio tracking\n${a.memory?`\nOwner context: ${a.memory}\n`:''}${priceInfo}${posInfo}\nPaper trading balance: $${state.paperBalance.toLocaleString()}\n\nRules:\n- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise\n- Use the live prices above for analysis\n- Be specific about entry/exit levels when asked\n- For crypto: mention support/resistance, trend direction, volume context\n- Keep analysis concise and actionable\n- Never give financial advice — always add disclaimer`;
-}
-function sysPrompt(a){if(a.role==='Trader')return traderPrompt(a);
-  const r=R[a.role];
-  return `You are "${a.name}", an AI ${r.en} at MyAI Office.\nSpecialty: ${r.descEn}\n${a.memory?`\nAdditional context/memory from owner:\n${a.memory}\n`:''}Rules:\n- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise\n- For code: ALWAYS use markdown code blocks with language\n- For content: write publish-ready, complete copy\n- Be concise, professional, and actionable\n- Use markdown for formatting when helpful`;
-}
+function traderPrompt(a){let priceInfo='';const syms=Object.keys(prices);if(syms.length)priceInfo='\n\nCurrent market prices (live):\n'+syms.map(s=>{const p=prices[s];return `${s}: $${p.usd} (24h: ${p.chg>=0?'+':''}${p.chg.toFixed(1)}%)`;}).join('\n');const openPositions=state.paperTrades.filter(t=>!t.closed);let posInfo='';if(openPositions.length)posInfo='\n\nYour open paper positions:\n'+openPositions.map(t=>{const cur=prices[t.sym]?.usd||t.entry;const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;return `${t.side.toUpperCase()} ${t.size} ${t.sym} @ $${t.entry} | Current: $${cur} | Unrealized: $${Math.round(upnl*100)/100}`;}).join('\n');return `You are "${a.name}", an AI Trader at MyAI Office.\nSpecialty: Market analysis, trading signals, portfolio tracking\n${a.memory?`\nOwner context: ${a.memory}\n`:''}${priceInfo}${posInfo}\nPaper trading balance: $${state.paperBalance.toLocaleString()}\n\nRules:\n- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise\n- Use the live prices above for analysis\n- Be specific about entry/exit levels when asked\n- For crypto: mention support/resistance, trend direction, volume context\n- Keep analysis concise and actionable\n- Never give financial advice — always add disclaimer`;}
+function sysPrompt(a){if(a.role==='Trader')return traderPrompt(a);const r=R[a.role];return `You are "${a.name}", an AI ${r.en} at MyAI Office.\nSpecialty: ${r.descEn}\n${a.memory?`\nAdditional context/memory from owner:\n${a.memory}\n`:''}Rules:\n- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise\n- For code: ALWAYS use markdown code blocks with language\n- For content: write publish-ready, complete copy\n- Be concise, professional, and actionable\n- Use markdown for formatting when helpful`;}
 
 // ====== PANEL SYSTEM ======
 function openPanel(html){$('panelContent').innerHTML=html;$('panel').classList.add('active');state.panelMode='open';}
-function closePanel(){$('panel').classList.remove('active');state.panelMode=null;
-  if(state.chatId){state.chatId=null;state.view='office';update3DView();}
-  if(state.view==='trade'){state.view='office';update3DView();}
-}
-function toggleTrade(){
-  if(state.panelMode==='trade'){closePanel();return;}
-  state.view='trade';state.chatId=null;renderTrade();update3DView();
-}
+function closePanel(){$('panel').classList.remove('active');state.panelMode=null;if(state.chatId){state.chatId=null;state.view='office';update3DView();}if(state.view==='trade'){state.view='office';update3DView();}}
+function toggleTrade(){if(state.panelMode==='trade'){closePanel();return;}state.view='trade';state.chatId=null;renderTrade();update3DView();}
 
-// ====== RENDER: TRADE PANEL ======
-function renderTrade(){
-  L=state.settings.lang||'th';const th=L==='th';
-  const openPositions=state.paperTrades.filter(t=>!t.closed);
-  const closedTrades=state.paperTrades.filter(t=>t.closed).slice(-20).reverse();
-  const balance=state.paperBalance+(openPositions.reduce((s,t)=>{const cur=prices[t.sym]?.usd||t.entry;return s+t.size*t.entry+(t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size);},0));
-  const tp=totalPnL();
-  let h=`<div class="p-head"><div class="p-title">📈 ${th?'เทรด':'Trading'}</div><span class="p-close" onclick="closePanel()">✕</span></div>${priceBarHTML()}
-    <div class="balance-bar"><span>💰 ${th?'พอร์ต':'Portfolio'}: <b style="color:var(--leaf)">$${Math.round(balance).toLocaleString()}</b></span><span style="font-size:10px;color:var(--muted)">${th?'เงินสด':'Cash'}: $${Math.round(state.paperBalance).toLocaleString()}</span><span style="margin-left:auto;color:${tp>=0?'var(--leaf)':'var(--coral)'}">${tp>=0?'+':''}$${Math.round(tp).toLocaleString()}</span></div>
-    <div class="p-body">`;
-  if(!openPositions.length&&!closedTrades.length)h+=`<div class="empty"><div style="font-size:40px">📈</div><h2>${th?'เริ่มเทรดกระดาษ':'Start Paper Trading'}</h2><p>${th?'เทรดด้วยเงินจำลอง $10,000 — ราคาจริงจาก CoinGecko':'Trade with $10,000 virtual cash — real prices from CoinGecko.'}</p></div>`;
-  for(const t of openPositions){const cur=prices[t.sym]?.usd||t.entry;const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;const upnlPct=(upnl/(t.size*t.entry))*100;
-    h+=`<div class="trade-card"><div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} <span style="margin-left:auto;font-size:10px;color:var(--muted)">${new Date(t.openAt).toLocaleTimeString()}</span></div><div style="font-size:11px;color:var(--ink2);margin-top:2px">Entry: $${t.entry.toLocaleString()} | Now: $${cur.toLocaleString()}</div><div class="t-pnl" style="color:${upnl>=0?'var(--leaf)':'var(--coral)'}">${upnl>=0?'+':''}$${Math.round(upnl*100)/100} (${upnlPct>=0?'+':''}${upnlPct.toFixed(1)}%)</div><button class="btn red sm" style="margin-top:6px" onclick="closePaperTrade(${t.id})">${th?'ปิด':'Close'}</button></div>`;}
-  for(const t of closedTrades)h+=`<div class="trade-card" style="opacity:.7"><div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} ✓</div><div class="t-pnl" style="color:${t.pnl>=0?'var(--leaf)':'var(--coral)'}">${t.pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}</div><div class="t-meta">${new Date(t.closedAt||0).toLocaleDateString()}</div></div>`;
-  h+=`</div><div class="trade-form"><select id="tradeSym" style="flex:1" onchange="const s=this.value;const p=prices[s];if(p){$('tradePrice').textContent='@ $'+p.usd}">${Object.keys(prices).map(s=>`<option>${s}</option>`).join('')}</select><select id="tradeSide"><option value="long">LONG</option><option value="short">SHORT</option></select><input id="tradeSize" type="number" placeholder="${th?'จำนวน':'Size'}" style="width:70px" min="0.01" step="0.01" value="1"><span id="tradePrice" style="font-size:11px;font-weight:800;color:var(--ink2)"></span><button class="btn pri sm" onclick="doTrade()">${th?'เทรด':'Trade'}</button></div>`;
-  openPanel(h);
-  setTimeout(()=>{const s=$('tradeSym');if(s&&prices[s.value]){$('tradePrice').textContent='@ $'+prices[s.value].usd}initPriceTimer();},100);
-}
+function renderTrade(){L=state.settings.lang||'th';const th=L==='th';const openPositions=state.paperTrades.filter(t=>!t.closed);const closedTrades=state.paperTrades.filter(t=>t.closed).slice(-20).reverse();const balance=state.paperBalance+(openPositions.reduce((s,t)=>{const cur=prices[t.sym]?.usd||t.entry;return s+t.size*t.entry+(t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size);},0));const tp=totalPnL();let h=`<div class="p-head"><div class="p-title">📈 ${th?'เทรด':'Trading'}</div><span class="p-close" onclick="closePanel()">✕</span></div>${priceBarHTML()}<div class="balance-bar"><span>💰 ${th?'พอร์ต':'Portfolio'}: <b style="color:var(--mint)">$${Math.round(balance).toLocaleString()}</b></span><span style="font-size:10px;color:var(--muted)">${th?'เงินสด':'Cash'}: $${Math.round(state.paperBalance).toLocaleString()}</span><span style="margin-left:auto;color:${tp>=0?'var(--mint)':'var(--coral)'}">${tp>=0?'+':''}$${Math.round(tp).toLocaleString()}</span></div><div class="p-body">`;if(!openPositions.length&&!closedTrades.length)h+=`<div class="empty"><div style="font-size:48px">📈</div><h2>${th?'เริ่มเทรดกระดาษ':'Start Paper Trading'}</h2><p>${th?'เทรดด้วยเงินจำลอง $10,000 — ราคาจริงจาก CoinGecko':'Trade with $10,000 virtual cash — real prices from CoinGecko.'}</p></div>`;for(const t of openPositions){const cur=prices[t.sym]?.usd||t.entry;const upnl=t.side==='long'?(cur-t.entry)*t.size:(t.entry-cur)*t.size;const upnlPct=(upnl/(t.size*t.entry))*100;h+=`<div class="trade-card"><div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} <span style="margin-left:auto;font-size:10px;color:var(--muted)">${new Date(t.openAt).toLocaleTimeString()}</span></div><div style="font-size:11px;color:var(--ink2);margin-top:2px">Entry: $${t.entry.toLocaleString()} | Now: $${cur.toLocaleString()}</div><div class="t-pnl" style="color:${upnl>=0?'var(--mint)':'var(--coral)'}">${upnl>=0?'+':''}$${Math.round(upnl*100)/100} (${upnlPct>=0?'+':''}${upnlPct.toFixed(1)}%)</div><button class="btn red sm" style="margin-top:6px" onclick="closePaperTrade(${t.id})">${th?'ปิด':'Close'}</button></div>`;}for(const t of closedTrades)h+=`<div class="trade-card" style="opacity:.7"><div class="t-head"><span class="t-side ${t.side}">${t.side.toUpperCase()}</span> ${t.size} ${t.sym} ✓</div><div class="t-pnl" style="color:${t.pnl>=0?'var(--mint)':'var(--coral)'}">${t.pnl>=0?'+':''}$${Math.abs(t.pnl).toLocaleString()}</div><div class="t-meta">${new Date(t.closedAt||0).toLocaleDateString()}</div></div>`;h+=`</div><div class="trade-form"><select id="tradeSym" style="flex:1" onchange="const s=this.value;const p=prices[s];if(p){$('tradePrice').textContent='@ $'+p.usd}">${Object.keys(prices).map(s=>`<option>${s}</option>`).join('')}</select><select id="tradeSide"><option value="long">LONG</option><option value="short">SHORT</option></select><input id="tradeSize" type="number" placeholder="${th?'จำนวน':'Size'}" style="width:70px" min="0.01" step="0.01" value="1"><span id="tradePrice" style="font-size:11px;font-weight:800;color:var(--ink2)"></span><button class="btn pri sm" onclick="doTrade()">${th?'เทรด':'Trade'}</button></div>`;openPanel(h);setTimeout(()=>{const s=$('tradeSym');if(s&&prices[s.value]){$('tradePrice').textContent='@ $'+prices[s.value].usd}initPriceTimer();},100);}
 function initPriceTimer(){if(priceTimer)return;fetchPrices().then(()=>{if(state.view==='trade')renderTrade();});priceTimer=setInterval(async()=>{await fetchPrices();if(state.view==='trade'){const bar=$('priceBar');if(bar)bar.outerHTML=priceBarHTML();}},15000);}
 
-// ====== RENDER: CHAT PANEL ======
-function renderChat(){
-  L=state.settings.lang||'th';const th=L==='th';
-  const a=state.agents.find(x=>x.id===state.chatId);if(!a){closePanel();return;}
-  const r=R[a.role];
-  let h=`<div class="p-head"><button class="btn sm" onclick="closePanel()" style="background:transparent;color:var(--muted)">← ${th?'กลับ':'Back'}</button><div style="width:30px;height:30px;border-radius:8px;font-size:16px;display:grid;place-items:center;background:${r.color}22;color:${r.color}">${r.icon}</div><div class="p-title">${esc(a.name)}</div><button class="btn sm" onclick="showAgentMenu('${a.id}')" style="background:transparent;color:var(--muted)">⋯</button></div>
-    <div class="quick-acts">${(r['quick'+(th?'Th':'En')]||[]).map(q=>`<button onclick="quickTask('${jesc(q)}')">${esc(q.slice(0,40))}${q.length>40?'…':''}</button>`).join('')}</div>
-    <div class="chat-wrap"><div class="chat-msgs" id="chatMsgs">`;
-  if(!a.chat.length)h+=`<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:40px;margin-bottom:8px">${r.icon}</div><div style="font-weight:800;font-size:15px">${esc(a.name)} · ${r[L]||r.en}</div><div style="font-size:12px;margin-top:4px;line-height:1.5">${r['desc'+(th?'Th':'En')]}</div>${a.memory?`<div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:8px;font-size:11px;text-align:left"><b>🧠 Memory:</b> ${esc(a.memory)}</div>`:''}</div>`;
-  else for(const m of a.chat){if(m.role==='user')h+=`<div class="msg user">${m.image?`<img class="img-preview" src="${m.image}">`:''}${esc(m.text)}</div>`;else h+=`<div class="msg ai"><div class="sender">${esc(a.name)}</div>${md2html(m.text)}</div>`;}
-  h+=`<div class="typing" id="typing" style="display:none"><span></span><span></span><span></span></div></div>
-    <div id="imgPrev" style="padding:0 12px;display:none"></div>
-    <div class="chat-bar"><button class="btn sm" onclick="$('fileInput').click()" style="background:var(--bg3);color:var(--ink2);font-size:18px">📎</button><textarea id="chatInput" rows="1" placeholder="${th?'สั่งงานเอเจนต์...':'Tell your agent what to do...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="send-btn" onclick="sendMsg()">${th?'ส่ง':'Send'}</button></div></div>`;
-  openPanel(h);setTimeout(()=>{$('chatInput')?.focus();scrollMsgs();},200);
-}
+function renderChat(){L=state.settings.lang||'th';const th=L==='th';const a=state.agents.find(x=>x.id===state.chatId);if(!a){closePanel();return;}const r=R[a.role];let h=`<div class="p-head"><button class="btn sm" onclick="closePanel()" style="background:transparent;color:var(--muted)">← ${th?'กลับ':'Back'}</button><div style="width:32px;height:32px;border-radius:10px;font-size:17px;display:grid;place-items:center;background:${r.color}22;color:${r.color}">${r.icon}</div><div class="p-title">${esc(a.name)}</div><button class="btn sm" onclick="showAgentMenu('${a.id}')" style="background:transparent;color:var(--muted)">⋯</button></div><div class="quick-acts">${(r['quick'+(th?'Th':'En')]||[]).map(q=>`<button onclick="quickTask('${jesc(q)}')">${esc(q.slice(0,40))}${q.length>40?'…':''}</button>`).join('')}</div><div class="chat-wrap"><div class="chat-msgs" id="chatMsgs">`;if(!a.chat.length)h+=`<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:44px;margin-bottom:10px">${r.icon}</div><div style="font-weight:800;font-size:16px">${esc(a.name)} · ${r[L]||r.en}</div><div style="font-size:12px;margin-top:6px;line-height:1.6">${r['desc'+(th?'Th':'En')]}</div>${a.memory?`<div style="margin-top:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px;font-size:11px;text-align:left"><b>🧠 Memory:</b> ${esc(a.memory)}</div>`:''}</div>`;else for(const m of a.chat){if(m.role==='user')h+=`<div class="msg user">${m.image?`<img class="img-preview" src="${m.image}">`:''}${esc(m.text)}</div>`;else h+=`<div class="msg ai"><div class="sender">${esc(a.name)}</div>${md2html(m.text)}</div>`;}h+=`<div class="typing" id="typing" style="display:none"><span></span><span></span><span></span></div></div><div id="imgPrev" style="padding:0 14px;display:none"></div><div class="chat-bar"><button class="btn sm" onclick="$('fileInput').click()" style="background:rgba(255,255,255,.08);font-size:20px;padding:6px 10px">📎</button><textarea id="chatInput" rows="1" placeholder="${th?'สั่งงานเอเจนต์...':'Tell your agent what to do...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="send-btn" onclick="sendMsg()">${th?'ส่ง':'Send'}</button></div></div>`;openPanel(h);setTimeout(()=>{$('chatInput')?.focus();scrollMsgs();},200);}
 function scrollMsgs(){const el=$('chatMsgs');if(el)el.scrollTop=el.scrollHeight;}
-function backToOffice(){closePanel();}
 function openChat(id){state.view='chat';state.chatId=id;renderChat();update3DView();}
 function quickTask(q){const inp=$('chatInput');if(inp){inp.value=q;inp.focus();}}
 
-// ====== SEND MESSAGE ======
-async function sendMsg(){
-  const inp=$('chatInput');if(!inp)return;const text=inp.value.trim();if(!text&&!window._pendingImg)return;
-  const a=state.agents.find(x=>x.id===state.chatId);if(!a)return;
-  inp.value='';const imgData=window._pendingImg||null;window._pendingImg=null;
-  const imgPrev=$('imgPrev');if(imgPrev)imgPrev.style.display='none';
-  a.chat.push({role:'user',text:text||'[image]',image:imgData?.dataUrl||null});a.status='work';
-  save();renderChat();updateAgentRing(a.id,'work');
-  const ti=$('typing');if(ti)ti.style.display='flex';scrollMsgs();
-  const hist=[{role:'system',text:sysPrompt(a)},...a.chat.slice(0,-1).filter(m=>m.role!=='system')];
-  const result=await callAI(text||'Describe this image in detail. What do you see?',hist.filter(m=>m.role!=='system').map(m=>({role:m.role,text:m.text})),imgData?{mime:imgData.mime,data:imgData.base64}:null);
-  if(ti)ti.style.display='none';
-  if(result.error){a.chat.push({role:'agent',text:'⚠️ '+result.error});a.status='idle';}else{a.chat.push({role:'agent',text:result.text});a.status='idle';}
-  save();renderChat();scrollMsgs();updateAgentRing(a.id,'idle');
-}
+async function sendMsg(){const inp=$('chatInput');if(!inp)return;const text=inp.value.trim();if(!text&&!window._pendingImg)return;const a=state.agents.find(x=>x.id===state.chatId);if(!a)return;inp.value='';const imgData=window._pendingImg||null;window._pendingImg=null;const imgPrev=$('imgPrev');if(imgPrev)imgPrev.style.display='none';a.chat.push({role:'user',text:text||'[image]',image:imgData?.dataUrl||null});a.status='work';save();renderChat();updateAgentRing(a.id,'work');const ti=$('typing');if(ti)ti.style.display='flex';scrollMsgs();const hist=[{role:'system',text:sysPrompt(a)},...a.chat.slice(0,-1).filter(m=>m.role!=='system')];const result=await callAI(text||'Describe this image in detail. What do you see?',hist.filter(m=>m.role!=='system').map(m=>({role:m.role,text:m.text})),imgData?{mime:imgData.mime,data:imgData.base64}:null);if(ti)ti.style.display='none';if(result.error){a.chat.push({role:'agent',text:'⚠️ '+result.error});a.status='idle';}else{a.chat.push({role:'agent',text:result.text});a.status='idle';}save();renderChat();scrollMsgs();updateAgentRing(a.id,'idle');}
 
-// ====== FILE UPLOAD ======
-function handleFile(e){
-  const file=e.target.files[0];if(!file)return;
-  if(!file.type.startsWith('image/')){toast(T('Images only','รูปภาพเท่านั้น'));return;}
-  const reader=new FileReader();reader.onload=ev=>{const dataUrl=ev.target.result;window._pendingImg={dataUrl,base64:dataUrl.split(',')[1],mime:file.type};const prev=$('imgPrev');if(prev){prev.style.display='block';prev.innerHTML=`<img src="${dataUrl}" class="img-preview"><button class="btn red sm" style="margin-left:6px" onclick="window._pendingImg=null;$('imgPrev').style.display='none'">✕</button>`;}};reader.readAsDataURL(file);e.target.value='';
-}
+function handleFile(e){const file=e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast(T('Images only','รูปภาพเท่านั้น'));return;}const reader=new FileReader();reader.onload=ev=>{const dataUrl=ev.target.result;window._pendingImg={dataUrl,base64:dataUrl.split(',')[1],mime:file.type};const prev=$('imgPrev');if(prev){prev.style.display='block';prev.innerHTML=`<img src="${dataUrl}" class="img-preview"><button class="btn red sm" style="margin-left:6px" onclick="window._pendingImg=null;$('imgPrev').style.display='none'">✕</button>`;}};reader.readAsDataURL(file);e.target.value='';}
 
 // ====== MODALS ======
-function showHire(){
-  const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';
-  ov.innerHTML=`<div class="modal"><h3>${th?'จ้างเอเจนต์ AI':'Hire AI Agent'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
-    <label>${th?'บทบาท':'Role'}</label><select id="hrRole">${RNAMES.map(rn=>`<option value="${rn}">${R[rn].icon} ${R[rn][L]||R[rn].en} — ${R[rn]['desc'+(th?'Th':'En')]}</option>`).join('')}</select>
-    <label>${th?'ชื่อ (ไม่ต้องใส่ — ตั้งให้เองตามบทบาท)':'Name (leave blank for default)'}</label><input id="hrName" placeholder="${th?'ตั้งชื่อเอง':'Custom name'}">
-    <label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Custom Instructions'}</label><textarea id="hrMem" placeholder="${th?'เช่น: \"ตอบเป็นภาษาไทยเท่านั้น\", \"เน้นเขียนโค้ดแบบ async\"':'E.g.: \"Always use async Python\", \"I run an e-commerce business\"'}"></textarea>
-    <button class="btn pri" style="width:100%;margin-top:12px" onclick="doHire()">${th?'จ้างเลย! ✦':'Hire! ✦'}</button></div>`;
-  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
-}
-function doHire(){
-  const role=$('hrRole')?.value||'Developer';const name=$('hrName')?.value?.trim();const memory=$('hrMem')?.value?.trim();
-  const r=R[role];const agent={id:uid(),role,name:name||(r[L]||r.en),memory:memory||'',chat:[],status:'idle',createdAt:Date.now()};
-  state.agents.push(agent);save();document.querySelector('.modal-over')?.remove();
-  toast(T('Agent hired! ✦','จ้างแล้ว! ✦'));refresh3D();updateWelcome();
-}
-function showAgentMenu(id){
-  const a=state.agents.find(x=>x.id===id);if(!a)return;const th=L==='th';
-  const ov=document.createElement('div');ov.className='modal-over';
-  ov.innerHTML=`<div class="modal"><h3>${esc(a.name)}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
-    <label>${th?'ชื่อ':'Name'}</label><input id="edName" value="${esc(a.name)}">
-    <label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Instructions'}</label><textarea id="edMem">${esc(a.memory||'')}</textarea>
-    <label>${th?'บทบาท':'Role'}</label><select id="edRole">${RNAMES.map(rn=>`<option value="${rn}" ${a.role===rn?'selected':''}>${R[rn].icon} ${R[rn][L]||R[rn].en}</option>`).join('')}</select>
-    <button class="btn pri" style="width:100%;margin-top:10px" onclick="saveAgent('${a.id}')">${th?'บันทึก':'Save'}</button>
-    <button class="btn" style="width:100%;margin-top:4px" onclick="exportChat('${a.id}')">📥 ${th?'ส่งออกแชท':'Export Chat'}</button>
-    <button class="btn" style="width:100%;margin-top:4px;color:var(--coral)" onclick="clearChat('${a.id}')">🗑 ${th?'ล้างแชท':'Clear Chat'}</button>
-    <button class="btn red" style="width:100%;margin-top:8px" onclick="fireAgent('${a.id}')">${th?'ไล่ออก':'Fire Agent'}</button></div>`;
-  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
-}
+function showHire(){const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';ov.innerHTML=`<div class="modal"><h3>✨ ${th?'จ้างเอเจนต์ AI':'Hire AI Agent'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3><label>${th?'บทบาท':'Role'}</label><select id="hrRole">${RNAMES.map(rn=>`<option value="${rn}">${R[rn].icon} ${R[rn][L]||R[rn].en} — ${R[rn]['desc'+(th?'Th':'En')]}</option>`).join('')}</select><label>${th?'ชื่อ (ไม่ต้องใส่ — ตั้งให้เองตามบทบาท)':'Name (leave blank for default)'}</label><input id="hrName" placeholder="${th?'ตั้งชื่อเอง':'Custom name'}"><label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Custom Instructions'}</label><textarea id="hrMem" placeholder="${th?'เช่น: \"ตอบเป็นภาษาไทยเท่านั้น\", \"เน้นเขียนโค้ดแบบ async\"':'E.g.: \"Always use async Python\", \"I run an e-commerce business\"'}"></textarea><button class="btn pri" style="width:100%;margin-top:14px;padding:12px;font-size:14px;border-radius:12px" onclick="doHire()">${th?'จ้างเลย! ✨':'Hire! ✨'}</button></div>`;document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};}
+function doHire(){const role=$('hrRole')?.value||'Developer';const name=$('hrName')?.value?.trim();const memory=$('hrMem')?.value?.trim();const r=R[role];const agent={id:uid(),role,name:name||(r[L]||r.en),memory:memory||'',chat:[],status:'idle',createdAt:Date.now()};state.agents.push(agent);save();document.querySelector('.modal-over')?.remove();toast(T('Agent hired! ✨','จ้างแล้ว! ✨'));refresh3D();updateWelcome();}
+function showAgentMenu(id){const a=state.agents.find(x=>x.id===id);if(!a)return;const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';ov.innerHTML=`<div class="modal"><h3>${esc(a.name)}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3><label>${th?'ชื่อ':'Name'}</label><input id="edName" value="${esc(a.name)}"><label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Instructions'}</label><textarea id="edMem">${esc(a.memory||'')}</textarea><label>${th?'บทบาท':'Role'}</label><select id="edRole">${RNAMES.map(rn=>`<option value="${rn}" ${a.role===rn?'selected':''}>${R[rn].icon} ${R[rn][L]||R[rn].en}</option>`).join('')}</select><button class="btn pri" style="width:100%;margin-top:10px" onclick="saveAgent('${a.id}')">${th?'บันทึก':'Save'}</button><button class="btn" style="width:100%;margin-top:4px" onclick="exportChat('${a.id}')">📥 ${th?'ส่งออกแชท':'Export Chat'}</button><button class="btn" style="width:100%;margin-top:4px;color:var(--coral)" onclick="clearChat('${a.id}')">🗑 ${th?'ล้างแชท':'Clear Chat'}</button><button class="btn red" style="width:100%;margin-top:8px" onclick="fireAgent('${a.id}')">${th?'ไล่ออก':'Fire Agent'}</button></div>`;document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};}
 function saveAgent(id){const a=state.agents.find(x=>x.id===id);if(!a)return;a.name=$('edName')?.value?.trim()||a.name;a.memory=$('edMem')?.value?.trim()||'';const nr=$('edRole')?.value;if(nr&&nr!==a.role)a.role=nr;save();document.querySelector('.modal-over')?.remove();toast(T('Saved ✓','บันทึกแล้ว ✓'));refresh3D();}
 function exportChat(id){const a=state.agents.find(x=>x.id===id);if(!a)return;let txt=`# Chat with ${a.name} (${a.role})\n# MyAI Office — ${new Date().toISOString().slice(0,10)}\n\n`;for(const m of a.chat)txt+=`## ${m.role==='user'?'You':a.name}\n${m.text}\n\n`;const blob=new Blob([txt],{type:'text/markdown'});const url=URL.createObjectURL(blob);const dl=document.createElement('a');dl.href=url;dl.download=`${a.name.replace(/\s/g,'_')}_chat.md`;dl.click();URL.revokeObjectURL(url);toast('Exported!');}
 function clearChat(id){const a=state.agents.find(x=>x.id===id);if(!a)return;if(!confirm(T('Clear all messages?','ล้างข้อความทั้งหมด?')))return;a.chat=[];a.status='idle';save();document.querySelector('.modal-over')?.remove();renderChat();refresh3D();}
 function fireAgent(id){const a=state.agents.find(x=>x.id===id);if(!a)return;if(!confirm(T(`Fire ${a.name}?`,`ไล่ ${a.name} ออก?`)))return;state.agents=state.agents.filter(x=>x.id!==id);if(state.chatId===id){state.chatId=null;closePanel();}save();document.querySelector('.modal-over')?.remove();refresh3D();updateWelcome();}
-function showSettings(){
-  const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';
-  ov.innerHTML=`<div class="modal"><h3>⚙️ ${th?'ตั้งค่า':'Settings'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
-    <label>🌐 ${th?'ภาษา':'Language'}</label><select id="setLang" onchange="state.settings.lang=this.value;L=this.value;save()"><option value="en" ${state.settings.lang==='en'?'selected':''}>English</option><option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option></select>
-    <label>🤖 ${th?'ผู้ให้บริการ AI':'AI Provider'}</label><select id="setProvider" onchange="state.settings.provider=this.value;save();reloadSettings()"><option value="gemini" ${state.settings.provider==='gemini'?'selected':''}>Google Gemini (${th?'ใช้ API key ตัวเอง':'own API key'})</option><option value="opencode" ${state.settings.provider==='opencode'?'selected':''}>OpenCode · DeepSeek v4 Pro</option><option value="proxy" ${state.settings.provider==='proxy'?'selected':''}>🔒 ${th?'Proxy ส่วนตัว (ไม่ต้องใช้ key)':'Private Proxy (no key needed)'}</option></select>
-    ${state.settings.provider==='proxy'?`<label>🔗 Proxy URL</label><input id="setProxy" value="${esc(state.settings.proxyUrl||'http://localhost:8765')}"><div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ที่อยู่ proxy server — รัน python3 proxy.py บนเครื่องตัวเอง':'Proxy server address — run proxy.py on your machine'}</div>`:''}
-    <label>🔑 API Key ${state.settings.provider==='proxy'?'(auto)':''}</label><input id="setKey" type="password" value="${esc(state.settings.provider==='proxy'?'':state.settings.apiKey)}" placeholder="API key...">
-    <label>🧠 ${th?'โมเดล':'Model'}</label><select id="setModel" onchange="state.settings.model=this.value;save()"><option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash</option><option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option><option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro</option></select>
-    <button class="btn pri" style="width:100%;margin-top:10px" onclick="doSaveSettings()">${th?'บันทึก':'Save'}</button>
-    <button class="btn" style="width:100%;margin-top:4px;color:var(--coral);font-size:11px" onclick="doReset()">${th?'ล้างข้อมูลทั้งหมด':'Reset Everything'}</button></div>`;
-  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
-}
+function showSettings(){const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';ov.innerHTML=`<div class="modal"><h3>⚙️ ${th?'ตั้งค่า':'Settings'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3><label>🌐 ${th?'ภาษา':'Language'}</label><select id="setLang" onchange="state.settings.lang=this.value;L=this.value;save()"><option value="en" ${state.settings.lang==='en'?'selected':''}>English</option><option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option></select><label>🤖 ${th?'ผู้ให้บริการ AI':'AI Provider'}</label><select id="setProvider" onchange="state.settings.provider=this.value;save();reloadSettings()"><option value="gemini" ${state.settings.provider==='gemini'?'selected':''}>Google Gemini (${th?'ใช้ API key ตัวเอง':'own API key'})</option><option value="opencode" ${state.settings.provider==='opencode'?'selected':''}>OpenCode · DeepSeek v4 Pro</option><option value="proxy" ${state.settings.provider==='proxy'?'selected':''}>🔒 ${th?'Proxy ส่วนตัว (ไม่ต้องใช้ key)':'Private Proxy (no key needed)'}</option></select>${state.settings.provider==='proxy'?`<label>🔗 Proxy URL</label><input id="setProxy" value="${esc(state.settings.proxyUrl||'http://localhost:8765')}"><div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ที่อยู่ proxy server — รัน python3 proxy.py บนเครื่องตัวเอง':'Proxy server address — run proxy.py on your machine'}</div>`:''}<label>🔑 API Key ${state.settings.provider==='proxy'?'(auto)':''}</label><input id="setKey" type="password" value="${esc(state.settings.provider==='proxy'?'':state.settings.apiKey)}" placeholder="API key..."><label>🧠 ${th?'โมเดล':'Model'}</label><select id="setModel" onchange="state.settings.model=this.value;save()"><option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash</option><option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option><option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro</option></select><button class="btn pri" style="width:100%;margin-top:10px" onclick="doSaveSettings()">${th?'บันทึก':'Save'}</button><button class="btn" style="width:100%;margin-top:4px;color:var(--coral);font-size:11px" onclick="doReset()">${th?'ล้างข้อมูลทั้งหมด':'Reset Everything'}</button></div>`;document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};}
 function reloadSettings(){const ov=document.querySelector('.modal-over');if(ov){const m=ov.querySelector('.modal');if(m)ov.remove();showSettings();}}
 function doSaveSettings(){const key=$('setKey')?.value?.trim();if(key)state.settings.apiKey=key;const proxy=$('setProxy')?.value?.trim();if(proxy)state.settings.proxyUrl=proxy;save();document.querySelector('.modal-over')?.remove();refresh3D();toast(T('Saved ✓','บันทึกแล้ว ✓'));}
 function doReset(){if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;try{localStorage.removeItem(S)}catch(e){}state={agents:[],settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};closePanel();refresh3D();updateWelcome();}
 
-// ====== 3D ENGINE ======
-let scene3D=null,camera,renderer,raycaster,agentMeshes=[],deskMeshes=[];
-let _camAngle=0.5,_camHeight=7,_prevMouse={x:0,y:0},_isDragging=false,_clickStart={x:0,y:0};
-const COLORS={Developer:'#38bdf8',Content:'#ff7eb6',Trader:'#22c97a',Designer:'#ffb43c',Research:'#7c5cff',Admin:'#a78bfa'};
+// ====== 3D CUTE OFFICE ======
+let scene3D=null,camera,renderer,raycaster,agentMeshes=[],deskMeshes=[],particles=[];
+let _camAngle=0.4,_camHeight=7.5,_prevMouse={x:0,y:0},_isDragging=false,_clickStart={x:0,y:0};
+const COLORS={Developer:'#74b9ff',Content:'#fd79a8',Trader:'#00cec9',Designer:'#fdcb6e',Research:'#6c5ce7',Admin:'#fab1a0'};
 
 function init3D(){
-  if(scene3D)return;
-  const gl=$('gl');if(!gl||!window.THREE)return;
-  scene3D=new THREE.Scene();scene3D.background=new THREE.Color('#0f0b1a');
-  camera=new THREE.PerspectiveCamera(50,gl.clientWidth/Math.max(gl.clientHeight,1),0.5,50);
-  camera.position.set(8,7,12);camera.lookAt(0,0,0);
+  if(scene3D)return;const gl=$('gl');if(!gl||!window.THREE)return;
+  scene3D=new THREE.Scene();
+  // Sky gradient background
+  const bgCanvas=document.createElement('canvas');bgCanvas.width=2;bgCanvas.height=512;const bgCtx=bgCanvas.getContext('2d');const grad=bgCtx.createLinearGradient(0,0,0,512);grad.addColorStop(0,'#1a1a2e');grad.addColorStop(0.3,'#2d1b69');grad.addColorStop(0.6,'#16213e');grad.addColorStop(1,'#0a0a1a');bgCtx.fillStyle=grad;bgCtx.fillRect(0,0,2,512);scene3D.background=new THREE.CanvasTexture(bgCanvas);
+
+  camera=new THREE.PerspectiveCamera(48,gl.clientWidth/Math.max(gl.clientHeight,1),0.5,50);
+  camera.position.set(8,7.5,13);camera.lookAt(0,0.5,0);
   renderer=new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(gl.clientWidth,gl.clientHeight);renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.shadowMap.enabled=true;gl.appendChild(renderer.domElement);
-  raycaster=new THREE.Raycaster();
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
+  gl.appendChild(renderer.domElement);raycaster=new THREE.Raycaster();
 
-  // Lights
-  scene3D.add(new THREE.AmbientLight('#b8b0d0',2.5));
-  const dl=new THREE.DirectionalLight('#ffffff',3);dl.position.set(5,10,3);dl.castShadow=true;scene3D.add(dl);
-  const fl=new THREE.PointLight('#7c5cff',2,15);fl.position.set(0,3,0);scene3D.add(fl);
+  // Warm ambient + directional
+  scene3D.add(new THREE.AmbientLight('#3d3560',3));
+  const sun=new THREE.DirectionalLight('#ffeedd',8);sun.position.set(8,14,4);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.near=0.5;sun.shadow.camera.far=40;sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=8;sun.shadow.camera.bottom=-4;scene3D.add(sun);
+  const fill=new THREE.PointLight('#b8a0ff',3,14);fill.position.set(-4,4,-2);scene3D.add(fill);
+  const rim=new THREE.PointLight('#ff9e9e',2,10);rim.position.set(6,2,5);scene3D.add(rim);
 
-  // Floor
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(14,10),new THREE.MeshStandardMaterial({color:'#2a2040',roughness:0.8}));
-  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene3D.add(floor);
-  for(let x=-6;x<=6;x+=2)for(let z=-4;z<=4;z+=2){const tile=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.8),new THREE.MeshStandardMaterial({color:(x+z)%4===0?'#2a2550':'#221d3a',roughness:0.7}));tile.rotation.x=-Math.PI/2;tile.position.set(x+0.9,0.01,z+0.9);tile.receiveShadow=true;scene3D.add(tile);}
+  // === FLOOR — warm wood ===
+  const floorG=new THREE.PlaneGeometry(16,12);
+  const floorCanvas=document.createElement('canvas');floorCanvas.width=256;floorCanvas.height=256;const fctx=floorCanvas.getContext('2d');fctx.fillStyle='#3d2b1f';fctx.fillRect(0,0,256,256);for(let i=0;i<8;i++){fctx.fillStyle=`rgba(60,${35+i*2},${25+i},0.3)`;fctx.fillRect(i*32,0,2,256);fctx.fillRect(0,i*32,256,2);}const floorTex=new THREE.CanvasTexture(floorCanvas);floorTex.wrapS=THREE.RepeatWrapping;floorTex.wrapT=THREE.RepeatWrapping;floorTex.repeat.set(3,2);
+  const floor=new THREE.Mesh(floorG,new THREE.MeshStandardMaterial({map:floorTex,color:'#c4956a',roughness:0.6}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene3D.add(floor);
 
-  // Walls
-  const wm=new THREE.MeshStandardMaterial({color:'#1a1530',roughness:0.9});
-  [{w:14,h:5,d:0.3,x:0,y:2.5,z:-5},{w:14,h:5,d:0.3,x:0,y:2.5,z:5},{w:0.3,h:5,d:10,x:-7,y:2.5,z:0}].forEach(b=>{const m=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h,b.d),wm);m.position.set(b.x,b.y,b.z);m.receiveShadow=true;scene3D.add(m);});
+  // === AREA RUG ===
+  const rug=new THREE.Mesh(new THREE.PlaneGeometry(8,5),new THREE.MeshStandardMaterial({color:'#5b3a6e',roughness:0.9}));rug.rotation.x=-Math.PI/2;rug.position.y=0.005;rug.receiveShadow=true;scene3D.add(rug);
 
-  // Desks
-  const dm=new THREE.MeshStandardMaterial({color:'#3a3060',roughness:0.5});
+  // === WALLS — warm cream/beige ===
+  const wm=new THREE.MeshStandardMaterial({color:'#f5e6d3',roughness:0.85});
+  [{w:16,h:6,d:0.4,x:0,y:3,z:-6},{w:16,h:6,d:0.4,x:0,y:3,z:6},{w:0.4,h:6,d:12,x:-8,y:3,z:0}].forEach(b=>{const m=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h,b.d),wm);m.position.set(b.x,b.y,b.z);m.receiveShadow=true;m.castShadow=true;scene3D.add(m);});
+
+  // === WINDOWS — back wall ===
+  [{x:-5,y:3.5,z:-5.8},{x:0,y:3.5,z:-5.8},{x:5,y:3.5,z:-5.8}].forEach(w=>{
+    const frame=new THREE.Mesh(new THREE.BoxGeometry(1.5,2,0.08),new THREE.MeshStandardMaterial({color:'#ddd5c8',roughness:0.3}));frame.position.set(w.x,w.y,w.z);scene3D.add(frame);
+    const glass=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.7),new THREE.MeshStandardMaterial({color:'#87ceeb',emissive:'#87ceeb',emissiveIntensity:0.4,roughness:0.1,metalness:0.3,transparent:true,opacity:0.5}));glass.position.set(w.x,w.y,w.z+0.05);scene3D.add(glass);
+    // Window glow
+    const glow=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.65),new THREE.MeshBasicMaterial({color:'#ffe8c0',transparent:true,opacity:0.15}));glow.position.set(w.x,w.y,w.z+0.06);scene3D.add(glow);
+  });
+
+  // === CEILING ===
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(16,12),new THREE.MeshStandardMaterial({color:'#faf5ee',roughness:0.9}));ceil.rotation.x=Math.PI/2;ceil.position.y=6;scene3D.add(ceil);
+  // Ceiling lights
+  [{x:-4,z:-3},{x:0,z:-3},{x:4,z:-3},{x:-4,z:3},{x:0,z:3},{x:4,z:3}].forEach(p=>{
+    const lamp=new THREE.Group();
+    const fixture=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.4,0.15,16),new THREE.MeshStandardMaterial({color:'#ffe8c0',emissive:'#ffe8c0',emissiveIntensity:0.8}));fixture.position.y=0;lamp.add(fixture);
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.15,8,8),new THREE.MeshBasicMaterial({color:'#fff8e7'}));bulb.position.y=-0.12;lamp.add(bulb);
+    lamp.position.set(p.x,5.8,p.z);scene3D.add(lamp);
+  });
+
+  // === PLANTS ===
+  [{x:-6.5,z:-1.5},{x:6.5,z:1.5},{x:-6.5,z:3.5}].forEach(p=>{
+    const plant=new THREE.Group();
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.2,0.6,12),new THREE.MeshStandardMaterial({color:'#e07b5a',roughness:0.5}));pot.position.y=0.3;pot.castShadow=true;plant.add(pot);
+    for(let i=0;i<5;i++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(0.2+Math.random()*0.15,6,4),new THREE.MeshStandardMaterial({color:`hsl(${120+Math.random()*30},60%,${35+Math.random()*20}%)`,roughness:0.6}));leaf.position.set((Math.random()-0.5)*0.3,0.6+Math.random()*0.4,(Math.random()-0.5)*0.3);leaf.castShadow=true;plant.add(leaf);}
+    plant.position.set(p.x,0,p.z);plant.scale.set(0.7+Math.random()*0.3,0.7+Math.random()*0.3,0.7+Math.random()*0.3);scene3D.add(plant);
+  });
+
+  // === BOOKSHELF ===
+  const shelf=new THREE.Group();
+  const shelfBase=new THREE.Mesh(new THREE.BoxGeometry(2,2.5,0.5),new THREE.MeshStandardMaterial({color:'#6b4c3b',roughness:0.4}));shelfBase.position.y=1.25;shelfBase.castShadow=true;shelf.add(shelfBase);
+  for(let r=0;r<3;r++){const board=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.06,0.45),new THREE.MeshStandardMaterial({color:'#8b6b5b',roughness:0.5}));board.position.y=0.3+r*0.8;board.castShadow=true;shelf.add(board);
+    for(let b=0;b<5;b++){const book=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.55+Math.random()*0.3,0.35),new THREE.MeshStandardMaterial({color:`hsl(${Math.random()*360},50%,${40+Math.random()*30}%)`,roughness:0.5}));book.position.set(-0.7+b*0.32,0.15+r*0.8+0.3,0);book.castShadow=true;shelf.add(book);}}
+  shelf.position.set(-7,0,4.5);shelf.rotation.y=0.3;scene3D.add(shelf);
+
+  // === CLOCK ===
+  const clockG=new THREE.Group();
+  const clockFace=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.08,32),new THREE.MeshStandardMaterial({color:'#fffef5',roughness:0.2}));clockFace.rotation.x=Math.PI/2;clockG.add(clockFace);
+  const clockRim=new THREE.Mesh(new THREE.TorusGeometry(0.5,0.06,8,32),new THREE.MeshStandardMaterial({color:'#8b6b5b',roughness:0.3,metalness:0.5}));clockRim.position.z=0.05;clockG.add(clockRim);
+  clockG.position.set(7.5,4.8,-5.5);clockG.rotation.y=Math.PI/2;scene3D.add(clockG);
+
+  // === DESKS — rounded modern ===
+  const deskMat=new THREE.MeshStandardMaterial({color:'#faf5ee',roughness:0.35});
+  const legMat=new THREE.MeshStandardMaterial({color:'#ddd5c8',roughness:0.4,metalness:0.2});
   const deskPos=[[-4,0,-2.5],[0,0,-2.5],[4,0,-2.5],[-4,0,2.5],[0,0,2.5],[4,0,2.5]];
-  deskPos.forEach(([x,y,z])=>{const g=new THREE.Group();const top=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.1,1),dm);top.position.y=0.9;top.castShadow=true;top.receiveShadow=true;g.add(top);[0.7,0.7,-0.7,-0.7].forEach((lx,i)=>{const leg=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.9,0.08),dm);leg.position.set(i<2?lx:-lx,0.45,i<2?-0.45:0.45);leg.castShadow=true;g.add(leg);});const scr=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.45,0.05),new THREE.MeshStandardMaterial({color:'#16314c',emissive:'#16314c',emissiveIntensity:0.5}));scr.position.set(0,1.15,-0.35);g.add(scr);g.position.set(x,y,z);scene3D.add(g);deskMeshes.push({group:g,screen:scr});});
+  deskMeshes=[]; // reset
+  deskPos.forEach(([x,y,z])=>{
+    const g=new THREE.Group();
+    // Rounded top
+    const top=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.08,1.1),deskMat);top.position.y=0.9;top.castShadow=true;top.receiveShadow=true;g.add(top);
+    // Legs
+    [[0.75,0.45,-0.45],[0.75,0.45,0.45],[-0.75,0.45,-0.45],[-0.75,0.45,0.45]].forEach(([lx,ly,lz])=>{const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.07,0.9,8),legMat);leg.position.set(lx,ly,lz);leg.castShadow=true;g.add(leg);});
+    // Monitor
+    const scrBase=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.15,8),new THREE.MeshStandardMaterial({color:'#999',roughness:0.3,metalness:0.6}));scrBase.position.set(0,0.98,-0.3);g.add(scrBase);
+    const scr=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.5,0.06),new THREE.MeshStandardMaterial({color:'#1a1a2e',emissive:'#1a1a2e',emissiveIntensity:0.4,roughness:0.2}));scr.position.set(0,1.28,-0.3);g.add(scr);
+    // Screen glow
+    const scrGlow=new THREE.Mesh(new THREE.PlaneGeometry(0.7,0.42),new THREE.MeshBasicMaterial({color:'#6c5ce7',transparent:true,opacity:0.08}));scrGlow.position.set(0,1.28,-0.33);g.add(scrGlow);
+    // Coffee mug
+    const mug=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.07,0.14,12),new THREE.MeshStandardMaterial({color:'#fff',roughness:0.3}));mug.position.set(0.55,0.96,-0.35);mug.castShadow=true;g.add(mug);
+    const mugH=new THREE.Mesh(new THREE.TorusGeometry(0.05,0.015,6,12),new THREE.MeshStandardMaterial({color:'#fff',roughness:0.3}));mugH.position.set(0.63,1.0,-0.35);mugH.rotation.y=Math.PI/2;g.add(mugH);
+    // Keyboard
+    const kb=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.03,0.18),new THREE.MeshStandardMaterial({color:'#333',roughness:0.5}));kb.position.set(0,0.95,0.1);kb.castShadow=true;g.add(kb);
+    g.position.set(x,y,z);scene3D.add(g);deskMeshes.push({group:g,screen:scr});
+  });
+
+  // === CUTE AGENT MODELS ===
+  buildAgents3D();
+
+  // === FLOATING PARTICLES (dust motes) ===
+  const partGeom=new THREE.BufferGeometry();const partCount=80;const partPositions=new Float32Array(partCount*3);
+  for(let i=0;i<partCount*3;i+=3){partPositions[i]=(Math.random()-0.5)*14;partPositions[i+1]=1+Math.random()*5;partPositions[i+2]=(Math.random()-0.5)*10;}
+  partGeom.setAttribute('position',new THREE.BufferAttribute(partPositions,3));
+  const partMat=new THREE.PointsMaterial({color:'#ffe8c0',size:0.03,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending});
+  particles=new THREE.Points(partGeom,partMat);scene3D.add(particles);
 
   // Controls
   gl.addEventListener('pointerdown',e=>{_isDragging=true;_clickStart.x=e.clientX;_clickStart.y=e.clientY;_prevMouse.x=e.clientX;_prevMouse.y=e.clientY;});
   window.addEventListener('pointerup',()=>_isDragging=false);
-  window.addEventListener('pointermove',e=>{if(!_isDragging)return;_camAngle-=(e.clientX-_prevMouse.x)*0.005;_camHeight=Math.max(3,Math.min(12,_camHeight+(e.clientY-_prevMouse.y)*0.03));_prevMouse.x=e.clientX;_prevMouse.y=e.clientY;});
-  gl.addEventListener('wheel',e=>{_camHeight=Math.max(3,Math.min(12,_camHeight+e.deltaY*0.01));});
+  window.addEventListener('pointermove',e=>{if(!_isDragging)return;_camAngle-=(e.clientX-_prevMouse.x)*0.004;_camHeight=Math.max(4,Math.min(11,_camHeight+(e.clientY-_prevMouse.y)*0.025));_prevMouse.x=e.clientX;_prevMouse.y=e.clientY;});
+  gl.addEventListener('wheel',e=>{_camHeight=Math.max(4,Math.min(11,_camHeight+e.deltaY*0.008));});
   gl.addEventListener('click',e=>{const dx=e.clientX-_clickStart.x,dy=e.clientY-_clickStart.y;if(Math.abs(dx)>5||Math.abs(dy)>5)return;const rect=gl.getBoundingClientRect();const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(agentMeshes.map(a=>a.group),true);if(hits.length>0){let obj=hits[0].object;while(obj){const aid=obj.userData?.agentId;if(aid){openChat(aid);return;}obj=obj.parent;}}});
 
   window.addEventListener('resize',()=>{if(!renderer||!camera)return;const gl=$('gl');camera.aspect=gl.clientWidth/Math.max(gl.clientHeight,1);camera.updateProjectionMatrix();renderer.setSize(gl.clientWidth,gl.clientHeight);});
 
-  buildAgents3D();animate3D();
+  animate3D();
 }
 
 function buildAgents3D(){
@@ -473,11 +382,26 @@ function buildAgents3D(){
   agentMeshes.forEach(a=>scene3D.remove(a.group));agentMeshes=[];
   const agents=state.agents;if(!agents.length){updateLabels();return;}
   const deskSlots=[[-4,0,-2.5],[0,0,-2.5],[4,0,-2.5],[-4,0,2.5],[0,0,2.5],[4,0,2.5]];
-  agents.slice(0,6).forEach((a,i)=>{const pos=deskSlots[i]||[0,0,0];const color=COLORS[a.role]||'#7c5cff';const g=new THREE.Group();
-    const bodyG=new THREE.Group();const cyl=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.35,12),new THREE.MeshStandardMaterial({color,roughness:0.3}));cyl.position.y=0.72;cyl.castShadow=true;bodyG.add(cyl);const bot=new THREE.Mesh(new THREE.SphereGeometry(0.22,12,6,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.3}));bot.position.y=0.55;bot.castShadow=true;bodyG.add(bot);const top2=new THREE.Mesh(new THREE.SphereGeometry(0.22,12,6,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.3}));top2.position.y=0.9;top2.castShadow=true;bodyG.add(top2);bodyG.position.y=0.85;g.add(bodyG);
-    const head=new THREE.Mesh(new THREE.SphereGeometry(0.28,16,16),new THREE.MeshStandardMaterial({color,roughness:0.2}));head.position.y=1.35;head.castShadow=true;g.add(head);
-    [[-0.1,1.4,0.25],[0.1,1.4,0.25]].forEach(([ex,ey,ez])=>{const eye=new THREE.Mesh(new THREE.SphereGeometry(0.06,8,8),new THREE.MeshStandardMaterial({color:'#ffffff'}));eye.position.set(ex,ey,ez);g.add(eye);const pupil=new THREE.Mesh(new THREE.SphereGeometry(0.03,8,8),new THREE.MeshStandardMaterial({color:'#0f0b1a'}));pupil.position.set(ex,ey,ez-0.04);g.add(pupil);});
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.25,0.04,8,16),new THREE.MeshStandardMaterial({color:a.status==='work'?'#ffb43c':a.status==='idle'?'#22c97a':'#7068a0',emissive:a.status==='work'?'#ffb43c':a.status==='idle'?'#22c97a':'#7068a0',emissiveIntensity:0.6}));ring.position.y=1.7;ring.rotation.x=Math.PI/2;g.add(ring);
+  agents.slice(0,6).forEach((a,i)=>{
+    const pos=deskSlots[i]||[0,0,0];const color=COLORS[a.role]||'#6c5ce7';const g=new THREE.Group();
+    // Body — cute rounded cylinder
+    const bodyG=new THREE.Group();
+    const cyl=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.4,16),new THREE.MeshStandardMaterial({color,roughness:0.25}));cyl.position.y=0.75;cyl.castShadow=true;bodyG.add(cyl);
+    const bot=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.25}));bot.position.y=0.55;bot.castShadow=true;bodyG.add(bot);
+    const topR=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,8,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.25}));topR.position.y=0.95;topR.castShadow=true;bodyG.add(topR);
+    bodyG.position.y=0.85;g.add(bodyG);
+    // Head — bigger, cuter
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.32,20,20),new THREE.MeshStandardMaterial({color,roughness:0.2}));head.position.y=1.4;head.castShadow=true;g.add(head);
+    // Big cute eyes
+    [[-0.11,1.47,0.28],[0.11,1.47,0.28]].forEach(([ex,ey,ez])=>{
+      const eyeW=new THREE.Mesh(new THREE.SphereGeometry(0.09,12,12),new THREE.MeshStandardMaterial({color:'#ffffff'}));eyeW.position.set(ex,ey,ez);g.add(eyeW);
+      const iris=new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8),new THREE.MeshStandardMaterial({color:'#1a1a2e'}));iris.position.set(ex,ey,ez-0.02);g.add(iris);
+      const highlight=new THREE.Mesh(new THREE.SphereGeometry(0.02,4,4),new THREE.MeshBasicMaterial({color:'#ffffff'}));highlight.position.set(ex+0.02,ey+0.03,ez-0.08);g.add(highlight);
+    });
+    // Little smile
+    const smile=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.015,6,12,Math.PI),new THREE.MeshStandardMaterial({color:'#1a1a2e'}));smile.position.set(0,1.32,0.32);smile.rotation.z=Math.PI;g.add(smile);
+    // Status ring
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.28,0.05,8,24),new THREE.MeshStandardMaterial({color:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',emissive:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',emissiveIntensity:0.8}));ring.position.y=1.8;ring.rotation.x=Math.PI/2;g.add(ring);
     g.position.set(pos[0],pos[1]+0.3,pos[2]+0.7);g.userData={agentId:a.id,ring,bodyG,head};
     scene3D.add(g);agentMeshes.push({group:g,ring,body:bodyG,head,agent:a});
   });
@@ -486,45 +410,45 @@ function buildAgents3D(){
 
 function updateAgentRing(agentId,status){
   const m=agentMeshes.find(x=>x.agent.id===agentId);if(!m)return;
-  const color=status==='work'?'#ffb43c':'#22c97a';m.ring.material.color.set(color);m.ring.material.emissive.set(color);
+  const color=status==='work'?'#fdcb6e':'#00cec9';m.ring.material.color.set(color);m.ring.material.emissive.set(color);
 }
 
 function animate3D(){
   requestAnimationFrame(animate3D);if(!scene3D)return;
   const t=Date.now()*0.001;
-  agentMeshes.forEach(m=>{if(m.agent.status==='work'){m.body.position.y=0.85+Math.sin(t*8)*0.03;m.head.rotation.y=Math.sin(t*3)*0.2;}else m.body.position.y=0.85+Math.sin(t*3)*0.02;m.ring.rotation.z+=0.02;});
-  camera.position.x=Math.sin(_camAngle)*10;camera.position.z=Math.cos(_camAngle)*10;camera.position.y=_camHeight;camera.lookAt(0,0.5,0);
+  agentMeshes.forEach(m=>{
+    if(m.agent.status==='work'){m.body.position.y=0.85+Math.sin(t*7)*0.04;m.head.rotation.y=Math.sin(t*2.5)*0.3;m.head.rotation.x=Math.sin(t*1.5)*0.05;}
+    else{m.body.position.y=0.85+Math.sin(t*2.5)*0.02;m.head.rotation.y=Math.sin(t*1.2)*0.15;}
+    m.ring.rotation.z+=0.015;
+  });
+  // Floating particles
+  if(particles){particles.rotation.y+=0.0003;const pos=particles.geometry.attributes.position;for(let i=0;i<pos.count;i++){pos.array[i*3+1]+=Math.sin(t+i)*0.003;if(pos.array[i*3+1]>6)pos.array[i*3+1]=0.5;if(pos.array[i*3+1]<0.5)pos.array[i*3+1]=0.5;}pos.needsUpdate=true;}
+  // Camera
+  camera.position.x=Math.sin(_camAngle)*11;camera.position.z=Math.cos(_camAngle)*11;camera.position.y=_camHeight;camera.lookAt(0,0.5,0);
   renderer.render(scene3D,camera);
   updateLabels();
 }
 
-// ====== 3D → 2D LABEL PROJECTION ======
+// ====== 3D→2D LABELS ======
 function updateLabels(){
   const container=$('labels');if(!container||!camera||!scene3D)return;
-  let html='';if(!agentMeshes.length){container.innerHTML='';return;}
+  if(!agentMeshes.length){container.innerHTML='';return;}
   const gl=$('gl');const w=gl.clientWidth,h=gl.clientHeight;
-  agentMeshes.forEach(m=>{
-    const wp=new THREE.Vector3();m.group.getWorldPosition(wp);wp.y+=1.6;
-    const sp=wp.clone().project(camera);
-    const sx=(sp.x*0.5+0.5)*w, sy=(-sp.y*0.5+0.5)*h;
-    if(sp.z>1)return; // behind camera
-    const a=m.agent,r=R[a.role],color=COLORS[a.role]||'#7c5cff';
-    const statusText=a.status==='work'?T('กำลังทำงาน...','กำลังทำงาน...'):T('ว่าง','ว่าง');
-    const statusCls=a.status==='work'?'work':'idle';
-    html+=`<div class="alabel" style="left:${sx}px;top:${sy}px" onclick="openChat('${a.id}')"><div class="al-dot ${statusCls}" style="background:${color};color:${color}"></div><div class="al-name" style="color:${color}">${esc(a.name)}</div><div class="al-role">${r.icon} ${r[L]||r.en}</div><div class="al-status" style="color:${a.status==='work'?'var(--gold)':'var(--leaf)'}">${statusText}</div></div>`;
+  let html='';agentMeshes.forEach(m=>{
+    const wp=new THREE.Vector3();m.group.getWorldPosition(wp);wp.y+=1.7;
+    const sp=wp.clone().project(camera);if(sp.z>1)return;
+    const sx=(sp.x*0.5+0.5)*w,sy=(-sp.y*0.5+0.5)*h;
+    const a=m.agent,r=R[a.role],color=COLORS[a.role]||'#6c5ce7';
+    const st=a.status==='work'?T('กำลังทำงาน...','กำลังทำงาน...'):T('✨ ว่าง','✨ idle');
+    const stCls=a.status==='work'?'work':'idle';
+    html+=`<div class="alabel" style="left:${sx}px;top:${sy}px" onclick="openChat('${a.id}')"><div class="al-dot ${stCls}" style="background:${color};color:${color}"></div><div class="al-name" style="color:${color}">${esc(a.name)}</div><div class="al-role">${r.icon} ${r[L]||r.en}</div><div class="al-status" style="color:${a.status==='work'?'var(--gold)':'var(--mint)'}">${st}</div></div>`;
   });
   container.innerHTML=html;
 }
 
-function update3DView(){
-  if(!scene3D){init3D();return;}
-  buildAgents3D();updateWelcome();
-}
+function update3DView(){if(!scene3D){init3D();return;}buildAgents3D();updateWelcome();}
 function refresh3D(){buildAgents3D();updateWelcome();}
-function updateWelcome(){
-  const w=$('welcome'),th=L==='th';
-  if(state.agents.length===0){w.classList.remove('hidden');$('wTitle').textContent=th?'สร้างทีม AI ของคุณ':'Build Your AI Team';$('wDesc').textContent=th?'จ้างเอเจนต์ AI มาทำงานให้คุณ — เห็นพวกเขานั่งทำงานในออฟฟิศ 3D แบบ real-time':'Hire AI agents to handle your daily tasks — see them work in your 3D office in real-time.';}else w.classList.add('hidden');
-}
+function updateWelcome(){const w=$('welcome'),th=L==='th';if(state.agents.length===0){w.classList.remove('hidden');$('wTitle').textContent=th?'สร้างทีม AI ของคุณ':'Build Your AI Team';$('wDesc').textContent=th?'จ้างเอเจนต์ AI มาทำงานให้คุณ — เห็นพวกเขานั่งทำงานในออฟฟิศ 3D แบบ real-time':'Hire AI agents to handle your daily tasks — see them work in your 3D office in real-time.';}else w.classList.add('hidden');}
 
 // ====== BOOT ======
 (async function(){
@@ -532,9 +456,7 @@ function updateWelcome(){
     if(!state.settings)state.settings={apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'};
     if(!Array.isArray(state.agents))state.agents=[];
     if(!state.agents.length&&!localStorage.getItem(S+'_seeded')){state.agents=DEMO_AGENTS.map(a=>({...a,id:uid()}));try{localStorage.setItem(S+'_seeded','1')}catch(e){}}
-    L=state.settings.lang||'th';
-    init3D();updateWelcome();
-    fetchPrices();
+    L=state.settings.lang||'th';init3D();updateWelcome();fetchPrices();
   }catch(e){$('welcome').innerHTML='<div class="w-card"><h2>⚠️ Error</h2><p>Try clearing browser data.</p></div>';$('welcome').classList.remove('hidden');}
 })();
 </script>
