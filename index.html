@@ -260,6 +260,15 @@ function doReset(){if(!confirm(T('Delete everything?','ลบทุกอย่�
 let scene3D=null,camera,renderer,raycaster,agentMeshes=[],deskMeshes=[],particles=[];
 let _camAngle=0.4,_camHeight=7.5,_prevMouse={x:0,y:0},_isDragging=false,_clickStart={x:0,y:0};
 const COLORS={Developer:'#74b9ff',Content:'#fd79a8',Trader:'#00cec9',Designer:'#fdcb6e',Research:'#6c5ce7',Admin:'#fab1a0'};
+// Agent skin/clothing colors per role
+const LOOK={
+  Developer:{skin:'#ffe0bd',outfit:'#3d5a80',accent:'#98c1d9',hair:'#2c1810',accessory:'glasses'},
+  Content:{skin:'#ffdbac',outfit:'#ee6c8a',accent:'#ffb3c6',hair:'#6b3a2e',accessory:'beret'},
+  Trader:{skin:'#f5d5b8',outfit:'#1a3c34',accent:'#2ecc71',hair:'#1a1a2e',accessory:'tie'},
+  Designer:{skin:'#ffe5c4',outfit:'#e17055',accent:'#fab1a0',hair:'#d4a574',accessory:'scarf'},
+  Research:{skin:'#eed5b7',outfit:'#4834d4',accent:'#7c5ce7',hair:'#4a3728',accessory:'specs'},
+  Admin:{skin:'#fce4c8',outfit:'#636e72',accent:'#b2bec3',hair:'#3d2b1f',accessory:'headset'}
+};
 
 function init3D(){
   if(scene3D)return;const gl=$('gl');if(!gl||!window.THREE)return;
@@ -383,27 +392,143 @@ function buildAgents3D(){
   const agents=state.agents;if(!agents.length){updateLabels();return;}
   const deskSlots=[[-4,0,-2.5],[0,0,-2.5],[4,0,-2.5],[-4,0,2.5],[0,0,2.5],[4,0,2.5]];
   agents.slice(0,6).forEach((a,i)=>{
-    const pos=deskSlots[i]||[0,0,0];const color=COLORS[a.role]||'#6c5ce7';const g=new THREE.Group();
-    // Body — cute rounded cylinder
-    const bodyG=new THREE.Group();
-    const cyl=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.4,16),new THREE.MeshStandardMaterial({color,roughness:0.25}));cyl.position.y=0.75;cyl.castShadow=true;bodyG.add(cyl);
-    const bot=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.25}));bot.position.y=0.55;bot.castShadow=true;bodyG.add(bot);
-    const topR=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,8,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color,roughness:0.25}));topR.position.y=0.95;topR.castShadow=true;bodyG.add(topR);
-    bodyG.position.y=0.85;g.add(bodyG);
-    // Head — bigger, cuter
-    const head=new THREE.Mesh(new THREE.SphereGeometry(0.32,20,20),new THREE.MeshStandardMaterial({color,roughness:0.2}));head.position.y=1.4;head.castShadow=true;g.add(head);
-    // Big cute eyes
-    [[-0.11,1.47,0.28],[0.11,1.47,0.28]].forEach(([ex,ey,ez])=>{
-      const eyeW=new THREE.Mesh(new THREE.SphereGeometry(0.09,12,12),new THREE.MeshStandardMaterial({color:'#ffffff'}));eyeW.position.set(ex,ey,ez);g.add(eyeW);
-      const iris=new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8),new THREE.MeshStandardMaterial({color:'#1a1a2e'}));iris.position.set(ex,ey,ez-0.02);g.add(iris);
-      const highlight=new THREE.Mesh(new THREE.SphereGeometry(0.02,4,4),new THREE.MeshBasicMaterial({color:'#ffffff'}));highlight.position.set(ex+0.02,ey+0.03,ez-0.08);g.add(highlight);
+    const pos=deskSlots[i]||[0,0,0];const color=COLORS[a.role]||'#6c5ce7';
+    const lk=LOOK[a.role]||LOOK.Developer;const g=new THREE.Group();
+    const M=o=>new THREE.MeshStandardMaterial(o); // material helper
+    
+    // === LEGS ===
+    const legsG=new THREE.Group();
+    [[-0.1,0,-0.05],[0.1,0,0.05]].forEach(([lx,ly,lz])=>{
+      const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.35,8),M({color:lk.outfit,roughness:0.4}));
+      leg.position.set(lx,0.17,ly);leg.castShadow=true;legsG.add(leg);
+      const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.06,0.16),M({color:'#2d1f1a',roughness:0.6}));
+      shoe.position.set(lx,0.02,ly+0.05);shoe.castShadow=true;legsG.add(shoe);
     });
-    // Little smile
-    const smile=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.015,6,12,Math.PI),new THREE.MeshStandardMaterial({color:'#1a1a2e'}));smile.position.set(0,1.32,0.32);smile.rotation.z=Math.PI;g.add(smile);
-    // Status ring
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.28,0.05,8,24),new THREE.MeshStandardMaterial({color:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',emissive:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',emissiveIntensity:0.8}));ring.position.y=1.8;ring.rotation.x=Math.PI/2;g.add(ring);
-    g.position.set(pos[0],pos[1]+0.3,pos[2]+0.7);g.userData={agentId:a.id,ring,bodyG,head};
-    scene3D.add(g);agentMeshes.push({group:g,ring,body:bodyG,head,agent:a});
+    legsG.position.y=0;g.add(legsG);
+    
+    // === TORSO (with outfit) ===
+    const torsoG=new THREE.Group();
+    const torso=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.45,16),M({color:lk.outfit,roughness:0.35}));
+    torso.position.y=0.55;torso.castShadow=true;torsoG.add(torso);
+    // Collar / shirt detail
+    const collar=new THREE.Mesh(new THREE.TorusGeometry(0.16,0.04,6,12,Math.PI),M({color:lk.accent,roughness:0.3}));
+    collar.position.set(0,0.78,0.1);collar.rotation.set(Math.PI/2,0,0);torsoG.add(collar);
+    // Belt
+    const belt=new THREE.Mesh(new THREE.TorusGeometry(0.22,0.03,8,16),M({color:'#3d3025',roughness:0.5}));
+    belt.position.y=0.35;belt.rotation.x=Math.PI/2;torsoG.add(belt);
+    torsoG.position.y=0.35;g.add(torsoG);
+    
+    // === ARMS ===
+    [[-1,0.22],[1,0.22]].forEach(([side,ox])=>{
+      const armG=new THREE.Group();
+      const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.07,0.3,8),M({color:lk.outfit,roughness:0.3}));
+      upper.position.y=0.55;armG.add(upper);
+      const hand=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8),M({color:lk.skin,roughness:0.3}));
+      hand.position.y=0.38;armG.add(hand);
+      armG.position.set(side*0.28,0.4,0);armG.rotation.z=side*0.3;armG.rotation.x=-0.1;
+      armG.userData={side};g.add(armG);
+    });
+    
+    // === HEAD ===
+    const headG=new THREE.Group();
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.3,24,24),M({color:lk.skin,roughness:0.25}));
+    head.position.y=1.05;head.castShadow=true;headG.add(head);
+    
+    // Hair (different per role)
+    const hairG=new THREE.Group();
+    if(a.role==='Developer'||a.role==='Research'){
+      // Short neat hair
+      const htop=new THREE.Mesh(new THREE.SphereGeometry(0.31,16,8,0,Math.PI*2,0,Math.PI*0.6),M({color:lk.hair,roughness:0.5}));
+      htop.position.y=1.2;hairG.add(htop);
+      const hside=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.06,8,16),M({color:lk.hair,roughness:0.5}));
+      hside.position.y=1.08;hside.rotation.x=Math.PI/2;hairG.add(hside);
+    }else if(a.role==='Content'){
+      // Messy bun
+      const htop=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,8,0,Math.PI*2,0,Math.PI*0.5),M({color:lk.hair,roughness:0.5}));
+      htop.position.y=1.25;hairG.add(htop);
+      const bun=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8),M({color:lk.hair,roughness:0.5}));
+      bun.position.set(0,1.38,-0.05);hairG.add(bun);
+    }else if(a.role==='Trader'){
+      // Slicked back
+      const htop=new THREE.Mesh(new THREE.SphereGeometry(0.31,16,8,0,Math.PI*2,0,Math.PI*0.55),M({color:lk.hair,roughness:0.4}));
+      htop.position.y=1.22;hairG.add(htop);
+    }else if(a.role==='Designer'){
+      // Curly/wavy
+      for(let j=0;j<8;j++){
+        const curl=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6),M({color:lk.hair,roughness:0.5}));
+        curl.position.set(Math.cos(j*0.8)*0.25,1.25+Math.sin(j*0.5)*0.08,Math.sin(j*0.8)*0.2);hairG.add(curl);
+      }
+    }else{
+      // Default neat hair
+      const htop=new THREE.Mesh(new THREE.SphereGeometry(0.31,16,8,0,Math.PI*2,0,Math.PI*0.55),M({color:lk.hair,roughness:0.5}));
+      htop.position.y=1.2;hairG.add(htop);
+    }
+    headG.add(hairG);
+    
+    // Eyes (big cute)
+    [[-0.09,1.08,0.26],[0.09,1.08,0.26]].forEach(([ex,ey,ez])=>{
+      const ew=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),M({color:'#ffffff'}));
+      ew.position.set(ex,ey,ez);headG.add(ew);
+      const ir=new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8),M({color:'#1a1a2e'}));
+      ir.position.set(ex,ey,ez-0.03);headG.add(ir);
+      const hl=new THREE.Mesh(new THREE.SphereGeometry(0.02,4,4),M({color:'#ffffff',emissive:'#ffffff',emissiveIntensity:0.5}));
+      hl.position.set(ex+0.015,ey+0.02,ez-0.07);headG.add(hl);
+    });
+    // Eyebrows
+    [[-0.09,1.16,0.24],[0.09,1.16,0.24]].forEach(([bx,by,bz])=>{
+      const brow=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.02,0.02),M({color:lk.hair,roughness:0.5}));
+      brow.position.set(bx,by,bz);brow.rotation.z=0.05;headG.add(brow);
+    });
+    // Blush
+    [[-0.16,0.99,0.22],[0.16,0.99,0.22]].forEach(([rx,ry,rz])=>{
+      const blush=new THREE.Mesh(new THREE.SphereGeometry(0.04,6,6),M({color:'#ffb3b3',transparent:true,opacity:0.4}));
+      blush.position.set(rx,ry,rz);headG.add(blush);
+    });
+    // Smile
+    const smile=new THREE.Mesh(new THREE.TorusGeometry(0.05,0.012,6,12,Math.PI),M({color:'#4a3030'}));
+    smile.position.set(0,0.96,0.29);smile.rotation.z=Math.PI;headG.add(smile);
+    // Nose (tiny)
+    const nose=new THREE.Mesh(new THREE.SphereGeometry(0.025,6,6),M({color:lk.skin,roughness:0.2}));
+    nose.position.set(0,1.03,0.3);headG.add(nose);
+    
+    // Glasses for Developer/Research
+    if(lk.accessory==='glasses'||lk.accessory==='specs'){
+      const frameG=new THREE.Group();
+      const rimL=new THREE.Mesh(new THREE.TorusGeometry(0.07,0.015,6,12),M({color:'#2d1f1a',roughness:0.3,metalness:0.5}));
+      rimL.position.set(-0.09,1.08,0.29);frameG.add(rimL);
+      const rimR=new THREE.Mesh(new THREE.TorusGeometry(0.07,0.015,6,12),M({color:'#2d1f1a',roughness:0.3,metalness:0.5}));
+      rimR.position.set(0.09,1.08,0.29);frameG.add(rimR);
+      const bridge=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.02,0.02),M({color:'#2d1f1a',roughness:0.3,metalness:0.5}));
+      bridge.position.set(0,1.08,0.29);frameG.add(bridge);
+      headG.add(frameG);
+    }
+    // Headset for Admin
+    if(lk.accessory==='headset'){
+      const band=new THREE.Mesh(new THREE.TorusGeometry(0.30,0.02,6,16,Math.PI),M({color:'#2d1f1a',roughness:0.4}));
+      band.position.y=1.06;band.rotation.set(0,0,Math.PI);headG.add(band);
+      const mic=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.02,0.12,6),M({color:'#444',roughness:0.3,metalness:0.7}));
+      mic.position.set(0.15,0.95,0.15);mic.rotation.z=0.3;headG.add(mic);
+    }
+    // Beret for Content
+    if(lk.accessory==='beret'){
+      const beret=new THREE.Mesh(new THREE.SphereGeometry(0.18,12,6,0,Math.PI*2,0,Math.PI*0.4),M({color:lk.accent,roughness:0.6}));
+      beret.position.set(-0.05,1.28,0.02);beret.rotation.z=-0.2;headG.add(beret);
+    }
+    
+    headG.position.y=0;g.add(headG);
+    
+    // Status ring (halo)
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.05,8,24),M({
+      color:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',
+      emissive:a.status==='work'?'#fdcb6e':a.status==='idle'?'#00cec9':'#8b7aaa',
+      emissiveIntensity:0.9,roughness:0.2}));
+    ring.position.y=1.5;ring.rotation.x=Math.PI/2;g.add(ring);
+    
+    g.position.set(pos[0],pos[1]+0.25,pos[2]+0.65);
+    g.userData={agentId:a.id,ring,headG,legsG,torsoG};
+    g.scale.set(0.9,0.9,0.9);
+    scene3D.add(g);
+    agentMeshes.push({group:g,ring,body:legsG,head:headG,torso:torsoG,agent:a});
   });
   updateLabels();
 }
@@ -417,8 +542,15 @@ function animate3D(){
   requestAnimationFrame(animate3D);if(!scene3D)return;
   const t=Date.now()*0.001;
   agentMeshes.forEach(m=>{
-    if(m.agent.status==='work'){m.body.position.y=0.85+Math.sin(t*7)*0.04;m.head.rotation.y=Math.sin(t*2.5)*0.3;m.head.rotation.x=Math.sin(t*1.5)*0.05;}
-    else{m.body.position.y=0.85+Math.sin(t*2.5)*0.02;m.head.rotation.y=Math.sin(t*1.2)*0.15;}
+    if(m.agent.status==='work'){
+      m.body.position.y=Math.sin(t*7)*0.03;
+      m.head.rotation.y=Math.sin(t*2.5)*0.4;m.head.rotation.x=Math.sin(t*1.5)*0.06;
+      // Bob up and down
+      m.group.position.y=m.group.position.y + Math.sin(t*8)*0.003;
+    }else{
+      m.body.position.y=Math.sin(t*2.5)*0.015;
+      m.head.rotation.y=Math.sin(t*1.2)*0.2;
+    }
     m.ring.rotation.z+=0.015;
   });
   // Floating particles
