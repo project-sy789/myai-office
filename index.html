@@ -387,14 +387,14 @@ function init3D(){
     // Seat cushion
     const seat=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.08,0.5),chairSeatMat);
     seat.position.y=0.42;seat.castShadow=true;ch.add(seat);
-    // Backrest
+    // Backrest (on +Z side so chair faces -Z = toward desk)
     const backG=new THREE.Group();
     const back=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.55,0.06),chairSeatMat);
     back.position.y=0.3;back.castShadow=true;backG.add(back);
-    backG.position.set(0,0.42,-0.28);backG.rotation.x=-0.15;
+    backG.position.set(0,0.42,0.28);backG.rotation.x=0.15;
     ch.add(backG);
     // Armrests
-    [[-0.28,0.42,0.05],[0.28,0.42,0.05]].forEach(([ax,ay,az])=>{
+    [[-0.28,0.42,-0.05],[0.28,0.42,-0.05]].forEach(([ax,ay,az])=>{
       const armBar=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.03,0.2,6),chairMetalMat);
       armBar.position.set(ax,ay+0.05,az);armBar.castShadow=true;ch.add(armBar);
       const armPad=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.03,0.2),new THREE.MeshStandardMaterial({color:'#4a3d66',roughness:0.4}));
