@@ -102,7 +102,7 @@ input[type=file]{display:none}
 const $=id=>document.getElementById(id);
 const S='myaioffice_v2';
 let state={
-  agents:[], settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash'},
+  agents:[], settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},
   view:'office', chatId:null,
   paperBalance:10000, paperTrades:[], tradeId:0
 };
@@ -144,6 +144,52 @@ const R={
     quickTh:['ร่างอีเมลตอบกลับ...','สร้างตารางงานสำหรับ...','เขียนเอกสารสำหรับ...','FAQ ลูกค้าสำหรับ...']}
 };
 const RNAMES=Object.keys(R);
+
+// ====== UNIFIED AI API ======
+async function callAI(prompt,hist,imgData){
+  const s=state.settings;
+  const provider=s.provider||'gemini';
+  
+  if(provider==='opencode'){
+    return callOpenCode(prompt,hist);
+  }
+  if(provider==='proxy'){
+    return callProxy(prompt,hist,imgData);
+  }
+  // default: Gemini
+  return callGemini(prompt,hist,imgData);
+}
+
+async function callOpenCode(prompt,hist){
+  const key=state.settings.apiKey;
+  if(!key)return{error:'No API key — open ⚙️ Settings'};
+  try{
+    const res=await fetch('https://opencode.ai/zen/go/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role==='user'?'user':'assistant',content:m.text})),{role:'user',content:prompt}],max_tokens:4096,temperature:0.7})
+    });
+    const d=await res.json();
+    if(d.error)return{error:d.error.message||'API error'};
+    let text=d.choices?.[0]?.message?.content||'';
+    if(!text&&d.choices?.[0]?.message?.reasoning_content){
+      text='[คิดแล้ว]\n\n'+d.choices[0].message.reasoning_content.slice(-500);
+    }
+    return{text:text||'(empty)'};
+  }catch(e){return{error:'Network error — OpenCode may block browser CORS. Try Proxy mode instead.'};}
+}
+
+async function callProxy(prompt,hist,imgData){
+  const url=(state.settings.proxyUrl||'http://localhost:8765')+'/api/chat';
+  try{
+    const res=await fetch(url,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:state.settings.model||'deepseek-v4-pro',messages:[...hist.filter(m=>m.role!=='system').map(m=>({role:m.role,content:m.text})),{role:'user',content:prompt}],max_tokens:4096})
+    });
+    const d=await res.json();
+    if(d.error)return{error:d.error};
+    return{text:d.choices?.[0]?.message?.content||'(empty)'};
+  }catch(e){return{error:'Proxy not reachable — start the proxy server or use Gemini instead.'};}
+}
 
 // ====== GEMINI API ======
 async function callGemini(prompt,hist,imgData){
@@ -423,7 +469,7 @@ async function sendMsg(){
   const prompt=[sysPrompt(a),...a.chat.slice(0,-1).map(m=>m.role==='user'?`User: ${m.text}`:`Assistant: ${m.text}`)].join('\n');
   const finalPrompt=text||'Describe this image in detail. What do you see?';
 
-  const result=await callGemini(finalPrompt,hist.filter(m=>m.role!=='system').map(m=>({role:m.role,text:m.text})),imgData?{mime:imgData.mime,data:imgData.base64}:null);
+  const result=await callAI(finalPrompt,hist.filter(m=>m.role!=='system').map(m=>({role:m.role,text:m.text})),imgData?{mime:imgData.mime,data:imgData.base64}:null);
 
   if(ti)ti.style.display='none';
   if(result.error){
@@ -625,10 +671,20 @@ function showSettings(){
       <option value="en" ${state.settings.lang==='en'?'selected':''}>English</option>
       <option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option>
     </select>
-    <label>🔑 Gemini API Key</label>
-    <input id="setKey" type="password" value="${esc(state.settings.apiKey)}" placeholder="AIza...">
-    <div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ได้ฟรีที่':'Free key at'} <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--sky)">aistudio.google.com</a></div>
-    <label>🧠 ${th?'โมเดล':'Model'}</label>
+    <label>🤖 ${th?'ผู้ให้บริการ AI':'AI Provider'}</label>
+    <select id="setProvider" onchange="state.settings.provider=this.value;save();toggleModelUI()">
+      <option value="gemini" ${state.settings.provider==='gemini'?'selected':''}>Google Gemini (${th?'ใช้ API key ตัวเอง':'own API key'})</option>
+      <option value="opencode" ${state.settings.provider==='opencode'?'selected':''}>OpenCode · DeepSeek v4 Pro (${th?'ใช้ API key ตัวเอง':'own API key'})</option>
+      <option value="proxy" ${state.settings.provider==='proxy'?'selected':''}>🔒 ${th?'Proxy ส่วนตัว (ไม่ต้องใช้ key)':'Private Proxy (no key needed)'}</option>
+    </select>
+    ${state.settings.provider==='proxy'?`
+      <label>🔗 Proxy URL</label>
+      <input id="setProxy" value="${esc(state.settings.proxyUrl||'http://localhost:8765')}" placeholder="http://localhost:8765">
+      <div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ที่อยู่ proxy server — รัน python3 proxy.py บนเครื่องตัวเอง':'Proxy server address — run python3 proxy.py on your machine'}</div>
+    `:''}
+    <label>🔑 API Key ${state.settings.provider==='proxy'?'(auto)':''}</label>
+    <input id="setKey" type="password" value="${esc(state.settings.provider==='proxy'?'':state.settings.apiKey)}" placeholder="API key..." >
+<label>🧠 ${th?'โมเดล':'Model'}</label><label>🧠 ${th?'โมเดล':'Model'}</label>
     <select id="setModel" onchange="state.settings.model=this.value;save()">
       <option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash (${th?'เร็ว':'fast'})</option>
       <option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option>
@@ -649,8 +705,16 @@ function doSaveSettings(){
 function doReset(){
   if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;
   try{localStorage.removeItem(S)}catch(e){}
-  state={agents:[],settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};
+  state={agents:[],settings:{apiKey:'',lang:'th',model:'gemini-2.0-flash',provider:'gemini',proxyUrl:'http://localhost:8765'},view:'office',chatId:null,paperBalance:10000,paperTrades:[],tradeId:0};
   document.querySelector('.modal-over')?.remove();render();
+}
+
+function toggleModelUI(){
+  const sel=document.getElementById('setProvider');if(!sel)return;
+  const proxy=sel.value==='proxy';
+  const keyIn=document.getElementById('setKey');if(keyIn){keyIn.disabled=proxy;keyIn.placeholder=proxy?'proxy managed':(sel.value==='gemini'?'AIza...':'sk-...');if(proxy)keyIn.value='';}
+  // Re-render settings to show/hide proxy URL
+  const ov=document.querySelector('.modal-over');if(ov){const m=ov.querySelector('.modal');if(m)ov.remove();showSettings();}
 }
 
 // ====== BOOT ======
