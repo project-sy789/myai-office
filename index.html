@@ -6,436 +6,479 @@
 <title>MyAI Office — Your AI Team</title>
 <meta name="description" content="Hire AI agents, assign roles, and get real work done.">
 <meta name="theme-color" content="#7c5cff">
-<link rel="manifest" href="data:application/json,{}">
 <style>
 :root{
-  --ink:#f3eeff;--ink2:#c4bce0;--paper:#1c1830;--paper2:#252040;
-  --line:#2a2540;--muted:#8a7fa8;--grape:#7c5cff;--coral:#ff6b5f;
-  --leaf:#22b07a;--gold:#ffb43c;--pink:#ff7eb6;--sky:#2f9fe0;
-  --btn:#2a2548;--btnHover:#332d55;--card:#221e38;
+  --bg:#0f0b1a;--bg2:#1a1530;--bg3:#221d3a;--card:#1e1940;--cardHover:#25204d;
+  --ink:#f0edfa;--ink2:#b8b0d0;--muted:#7068a0;--line:#2a2550;
+  --grape:#7c5cff;--coral:#ff6b5f;--leaf:#22c97a;--gold:#ffb43c;--pink:#ff7eb6;--sky:#38bdf8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
-#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto}
-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--paper2);border-bottom:1px solid var(--line);flex-shrink:0}
-header .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;cursor:pointer}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;max-width:640px;margin:0 auto}
+header{sdisplay:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--line);flex-shrink:0;min-height:52px}
+header .h-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+header .logo{font-weight:900;font-size:17px;letter-spacing:-.01em;cursor:pointer;white-space:nowrap}
 header .logo b{color:var(--grape)}
-header .spacer{flex:1}
-.btn{padding:8px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:none;background:var(--btn);color:var(--ink);transition:all .15s}
-.btn:hover{background:var(--btnHover)}
-.btn.p{background:var(--grape);color:#fff}
-.btn.p:hover{filter:brightness(1.1)}
-.btn.d{background:var(--coral);color:#fff}
-.btn.s{background:var(--leaf);color:#fff}
-.btn.ghost{background:transparent;color:var(--muted)}
-.btn.ghost:hover{color:var(--ink)}
-main{flex:1;overflow-y:auto;padding:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;transition:all .2s;cursor:pointer}
-.card:hover{border-color:var(--grape)}
-.card .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.card .avatar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900;flex-shrink:0}
-.card .name{font-weight:800;font-size:15px}
-.card .role{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.card .status{font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;margin-left:auto}
-.card .task{font-size:12px;color:var(--ink2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.status.idle{background:#2a2540;color:var(--muted)}
-.status.work{background:rgba(124,92,255,.2);color:var(--grape)}
-.status.done{background:rgba(34,176,122,.2);color:var(--leaf)}
-.empty{text-align:center;padding:40px 20px;color:var(--muted)}
-.empty .icon{font-size:48px;margin-bottom:12px}
+header .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--grape);color:#fff}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;font-weight:700;font-size:12.5px;cursor:pointer;border:none;background:var(--bg3);color:var(--ink);transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn:hover{filter:brightness(1.15)}
+.btn.pri{background:var(--grape);color:#fff}
+.btn.grn{background:var(--leaf);color:#fff}
+.btn.red{background:var(--coral);color:#fff}
+.btn.gho{background:transparent;color:var(--muted)}
+.btn.gho:hover{color:var(--ink);background:transparent}
+.btn.sm{padding:5px 9px;font-size:11px}
+main{flex:1;overflow-y:auto;padding:12px;scroll-behavior:smooth}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.card:hover{border-color:var(--grape);background:var(--cardHover)}
+.card .c-head{display:flex;align-items:center;gap:10px}
+.card .c-avatar{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.card .c-info{flex:1;min-width:0}
+.card .c-name{font-weight:800;font-size:14px;line-height:1.2}
+.card .c-role{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.card .c-meta{display:flex;gap:8px;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--muted)}
+.card .c-meta span{padding:2px 7px;border-radius:5px;background:var(--bg3)}
+.card .c-task{font-size:11.5px;color:var(--ink2);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .e-icon{font-size:52px;margin-bottom:12px}
 .empty h2{font-weight:900;margin-bottom:6px;color:var(--ink)}
-.empty p{font-size:13px;margin-bottom:16px}
-.chat-panel{display:flex;flex-direction:column;height:100%}
-.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
-.chat-msg.user{align-self:flex-end;background:var(--grape);color:#fff;border-bottom-right-radius:4px}
-.chat-msg.agent{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
-.chat-msg .code{background:rgba(0,0,0,.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:12px;overflow-x:auto}
-.chat-input-box{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--paper2);flex-shrink:0}
-.chat-input-box input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;outline:none;font-family:inherit}
-.chat-input-box input:focus{border-color:var(--grape)}
-.back-btn{cursor:pointer;font-size:18px;padding:4px 8px}
-.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px}
-.modal{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
-.modal h2{font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.modal h2 span{font-size:14px;color:var(--muted);margin-left:auto;cursor:pointer}
-.modal label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
-.modal input,.modal select,.modal textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;font-family:inherit;outline:none}
+.empty p{font-size:13px;margin-bottom:14px;line-height:1.4}
+.chat-wrap{display:flex;flex-direction:column;height:100%}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:88%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.5;animation:msgIn .25s ease}
+.msg.user{align-self:flex-end;background:var(--grape);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.ai .sender{font-size:10px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.msg p{margin:4px 0}
+.msg ul,.msg ol{margin:4px 0;padding-left:20px}
+.msg li{margin:2px 0}
+.msg strong{color:var(--gold)}
+.msg em{color:var(--ink2)}
+.msg code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:12px;font-family:'SF Mono',monospace}
+.msg pre{background:#0d0a1a;border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;overflow-x:auto;font-size:12px;line-height:1.4;position:relative}
+.msg pre .lang{position:absolute;top:6px;right:8px;font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase}
+.msg pre .copy{position:absolute;top:4px;right:4px;padding:3px 8px;border-radius:5px;font-size:10px;background:var(--bg3);color:var(--ink2);cursor:pointer;border:none;font-weight:700;opacity:0;transition:opacity .2s}
+.msg pre:hover .copy{opacity:1}
+.msg a{color:var(--sky)}
+.msg blockquote{border-left:3px solid var(--grape);padding-left:10px;color:var(--ink2);margin:6px 0}
+.msg .img-attach{max-width:200px;border-radius:10px;margin:6px 0;cursor:pointer}
+.typing{align-self:flex-start;padding:8px 14px;background:var(--card);border-radius:14px;font-size:12px;color:var(--muted);display:flex;gap:3px}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:dotBounce 1.4s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes dotBounce{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chat-bar{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--bg2);flex-shrink:0;align-items:flex-end}
+.chat-bar textarea{flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13.5px;outline:none;font-family:inherit;resize:none;min-height:40px;max-height:120px;line-height:1.4}
+.chat-bar textarea:focus{border-color:var(--grape)}
+.chat-bar .send-btn{padding:9px 16px;border-radius:10px;background:var(--grape);color:#fff;font-weight:800;font-size:13px;border:none;cursor:pointer;flex-shrink:0}
+.chat-bar .attach-btn{padding:7px 10px;border-radius:10px;background:var(--bg3);color:var(--ink2);font-size:18px;border:none;cursor:pointer;flex-shrink:0}
+.quick-acts{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);background:var(--bg2);flex-shrink:0}
+.quick-acts button{padding:5px 10px;border-radius:7px;font-size:10.5px;font-weight:700;border:1px solid var(--line);background:var(--bg3);color:var(--ink2);cursor:pointer;white-space:nowrap}
+.quick-acts button:hover{background:var(--grape);color:#fff;border-color:var(--grape)}
+.modal-over{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:16px;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+.modal h3{font-weight:900;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:16px}
+.modal h3 .close{margin-left:auto;cursor:pointer;font-size:18px;color:var(--muted)}
+.modal label{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13.5px;font-family:inherit;outline:none}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--grape)}
-.modal select{appearance:none;cursor:pointer}
-.modal textarea{resize:vertical;min-height:60px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:12px;font-weight:800;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.modal textarea{resize:vertical;min-height:70px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:12px;font-weight:800;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
 .toast.show{opacity:1}
-.tabs{display:flex;gap:4px;background:var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
-.tab{flex:1;text-align:center;padding:8px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;color:var(--muted)}
-.tab.on{background:var(--grape);color:#fff}
-@media(max-width:400px){.btn{font-size:12px;padding:6px 10px}}
+.img-preview{max-width:120px;max-height:80px;border-radius:8px;margin:4px 0;border:1px solid var(--line)}
+input[type=file]{display:none}
+@media(max-width:400px){.btn{font-size:11px;padding:6px 10px}.msg{max-width:92%}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <div id="toast" class="toast"></div>
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
 <script>
-// ====== MyAI Office — Single-File AI Agent Manager ======
-const $ = id => document.getElementById(id);
-const STORAGE = 'myaioffice_v1';
+// ============ MyAI Office v2 — Production-Ready ============
+const $=id=>document.getElementById(id);
+const S='myaioffice_v2';
+let state={agents:[], settings:{apiKey:'',lang:'en',model:'gemini-2.0-flash'}, view:'office', chatId:null};
+let L='en', _toastTimer=null;
 
-// ====== State ======
-let state = {
-  agents: [],
-  settings: { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' },
-  view: 'office', // office | chat
-  chatAgentId: null,
-};
-let LANG = 'en';
+function save(){try{localStorage.setItem(S,JSON.stringify(state))}catch(e){}}
+function load(){try{const s=localStorage.getItem(S);if(s)state=JSON.parse(s)}catch(e){}}
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const jesc=s=>String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+const uid=()=>'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const T=(en,th)=>L==='th'?th:en;
 
-function saveState() { try { localStorage.setItem(STORAGE, JSON.stringify(state)); } catch(e) {} }
-function loadState() { try { const s = localStorage.getItem(STORAGE); if (s) state = JSON.parse(s); } catch(e) {} }
-
-// ====== Helpers ======
-const esc = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
-const uid = () => 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const tn = (en, th) => LANG === 'th' ? th : en;
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function toast(m,d=2500){
+  const t=$('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('show'),d);
 }
 
-const ROLES = {
-  Developer: { icon:'💻', color:'#2f9fe0', en:'Developer', th:'นักพัฒนา', descEn:'Writes code, debugs, builds apps', descTh:'เขียนโค้ด แก้บั๊ค สร้างแอพ' },
-  Content:   { icon:'🎬', color:'#ff7eb6', en:'Content Creator', th:'ครีเอเตอร์', descEn:'Creates videos, posts, reels', descTh:'ทำวิดีโอ โพสต์ คอนเทนต์' },
-  Trader:    { icon:'📈', color:'#22b07a', en:'Trader', th:'นักเทรด', descEn:'Analyzes markets, tracks PnL', descTh:'วิเคราะห์ตลาด ติดตามพอร์ต' },
-  Designer:  { icon:'🎨', color:'#ffb43c', en:'Designer', th:'ดีไซเนอร์', descEn:'Graphics, logos, thumbnails', descTh:'ทำกราฟิก โลโก้ ธัมบ์เนล' },
-  Research:  { icon:'🔍', color:'#7c5cff', en:'Researcher', th:'นักวิจัย', descEn:'Summarizes, analyzes, reports', descTh:'สรุป วิเคราะห์ ทำรายงาน' },
-  Admin:     { icon:'📋', color:'#8a7fa8', en:'Admin', th:'แอดมิน', descEn:'Replies to customers, schedules', descTh:'ตอบลูกค้า จัดตารางงาน' },
+// ====== ROLES ======
+const R={
+  Developer:{icon:'💻',color:'#38bdf8',en:'Developer',th:'นักพัฒนา',descEn:'Writes code, debugs, builds apps & APIs',descTh:'เขียนโค้ด แก้บั๊ค สร้างแอพและ API',
+    quickEn:['Write a Python script to...','Debug this code:','Build a REST API for...','Create a React component...'],
+    quickTh:['เขียน Python script สำหรับ...','แก้บั๊คโค้ดนี้:','สร้าง REST API สำหรับ...','สร้าง React component...']},
+  Content:{icon:'🎬',color:'#ff7eb6',en:'Content Creator',th:'ครีเอเตอร์',descEn:'Creates videos, posts, reels, captions',descTh:'ทำวิดีโอ โพสต์ Reels แคปชั่น',
+    quickEn:['Write a TikTok script about...','Draft 5 social media posts...','Create a YouTube video outline...','Write engaging captions for...'],
+    quickTh:['เขียนสคริปต์ TikTok...','ร่างโพสต์โซเชียล 5 อัน...','ทำโครงวิดีโอ YouTube...','เขียนแคปชั่นสำหรับ...']},
+  Trader:{icon:'📈',color:'#22c97a',en:'Trader',th:'นักเทรด',descEn:'Analyzes markets, tracks PnL, trading signals',descTh:'วิเคราะห์ตลาด ติดตามพอร์ต สัญญาณเทรด',
+    quickEn:['Analyze BTC/USD trend...','Calculate risk/reward for...','Review my portfolio...','What are key levels for...'],
+    quickTh:['วิเคราะห์แนวโน้ม BTC...','คำนวณ risk/reward...','รีวิวพอร์ตโฟลิโอ...','แนวรับแนวต้านของ...']},
+  Designer:{icon:'🎨',color:'#ffb43c',en:'Designer',th:'ดีไซเนอร์',descEn:'Graphics, logos, thumbnails, branding',descTh:'กราฟิก โลโก้ ธัมบ์เนล แบรนด์ดิ้ง',
+    quickEn:['Design a logo concept for...','Suggest a color palette for...','Create thumbnail ideas for...','Brand identity for...'],
+    quickTh:['ออกแบบโลโก้สำหรับ...','แนะนำชุดสีสำหรับ...','ไอเดียธัมบ์เนล...','สร้างแบรนด์ identity...']},
+  Research:{icon:'🔍',color:'#7c5cff',en:'Researcher',th:'นักวิจัย',descEn:'Summarizes, analyzes data, writes reports',descTh:'สรุป วิเคราะห์ข้อมูล เขียนรายงาน',
+    quickEn:['Research the market for...','Summarize this topic:','Compare X vs Y...','Find latest trends in...'],
+    quickTh:['วิจัยตลาดสำหรับ...','สรุปหัวข้อนี้:','เปรียบเทียบ X กับ Y...','หาเทรนด์ล่าสุดเกี่ยวกับ...']},
+  Admin:{icon:'📋',color:'#a78bfa',en:'Admin',th:'แอดมิน',descEn:'Customer replies, schedules, documentation',descTh:'ตอบลูกค้า จัดตาราง ทำเอกสาร',
+    quickEn:['Draft an email response to...','Create a schedule for...','Write documentation for...','Customer FAQ for...'],
+    quickTh:['ร่างอีเมลตอบกลับ...','สร้างตารางงานสำหรับ...','เขียนเอกสารสำหรับ...','FAQ ลูกค้าสำหรับ...']}
 };
-const ROLE_NAMES = Object.keys(ROLES);
+const RNAMES=Object.keys(R);
 
-// ====== Gemini API ======
-async function callGemini(prompt, history) {
-  const key = state.settings.apiKey;
-  if (!key) return { error: 'API key not set. Open Settings to add your Gemini key.' };
-  const model = state.settings.model || 'gemini-2.0-flash';
-  const contents = [];
-  for (const h of (history||[])) {
-    contents.push({ role: h.role === 'user' ? 'user' : 'model', parts: [{ text: h.text }] });
-  }
-  contents.push({ role: 'user', parts: [{ text: prompt }] });
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents, generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } })
+// ====== GEMINI API ======
+async function callGemini(prompt,hist,imgData){
+  const key=state.settings.apiKey;
+  if(!key)return{error:'No API key — open ⚙️ Settings'};
+  const model=state.settings.model||'gemini-2.0-flash';
+  const parts=[{text:prompt}];
+  if(imgData)parts.push({inline_data:{mime_type:imgData.mime||'image/png',data:imgData.data}});
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[...hist.map(h=>({role:h.role==='user'?'user':'model',parts:[{text:h.text}]})),{role:'user',parts}],generationConfig:{temperature:0.7,maxOutputTokens:4096}})
     });
-    const d = await res.json();
-    if (d.error) return { error: d.error.message || 'API error' };
-    return { text: d.candidates?.[0]?.content?.parts?.[0]?.text || '(no response)' };
-  } catch (e) {
-    return { error: 'Network error — check your connection' };
-  }
+    const d=await res.json();
+    if(d.error)return{error:d.error.message||'API error'};
+    return{text:d.candidates?.[0]?.content?.parts?.[0]?.text||'(empty response)'};
+  }catch(e){return{error:'Network error — check connection'};}
 }
 
-// ====== Agent Management ======
-function getAgent(id) { return state.agents.find(a => a.id === id); }
-
-function hireAgent(role, name) {
-  const r = ROLES[role];
-  const agent = {
-    id: uid(), role, name: name || (r[LANG] || r.en),
-    chat: [], status: 'idle', createdAt: Date.now()
-  };
-  state.agents.push(agent);
-  saveState();
-  toast(tn('Agent hired! ✦', 'จ้างแล้ว! ✦'));
-  return agent;
+// ====== MARKDOWN RENDERER ======
+function md2html(t){
+  if(!t)return'';
+  let h=esc(t);
+  // Code blocks with language
+  h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>
+    '<pre><span class="lang">'+esc(lang||'')+'</span><button class="copy" onclick="copyCode(this)">Copy</button>'+esc(code.trimEnd())+'</pre>');
+  // Inline code
+  h=h.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // Bold, italic
+  h=h.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // Headers
+  h=h.replace(/^### (.+)$/gm,'<strong>$1</strong>');
+  h=h.replace(/^## (.+)$/gm,'<strong style="font-size:1.1em">$1</strong>');
+  h=h.replace(/^# (.+)$/gm,'<strong style="font-size:1.2em">$1</strong>');
+  // Lists
+  h=h.replace(/^- (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');
+  h=h.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/<li>/g,'\n<li>'); // re-split for numbered lists
+  // Blockquote
+  h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  // Links
+  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  // Line breaks
+  h=h.replace(/\n\n/g,'</p><p>');
+  h=h.replace(/\n/g,'<br>');
+  h='<p>'+h+'</p>';
+  h=h.replace(/<p>\s*<\/p>/g,'');
+  return h;
 }
 
-function fireAgent(id) {
-  state.agents = state.agents.filter(a => a.id !== id);
-  saveState();
-  toast(tn('Agent fired', 'ไล่ออกแล้ว'));
+function copyCode(btn){
+  const code=btn.parentElement.textContent.replace('Copy','').trim();
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);
+  }).catch(()=>toast(T('Copy failed','คัดลอกไม่สำเร็จ')));
 }
 
-// ====== Agent System Prompt ======
-function systemPrompt(agent) {
-  const r = ROLES[agent.role];
-  return `You are "${agent.name}", an AI ${r.en} working at MyAI Office.
-Your specialty: ${r.descEn}
-Role: ${agent.role}
-
+// ====== AGENT SYSTEM PROMPT ======
+function sysPrompt(a){
+  const r=R[a.role];
+  return `You are "${a.name}", an AI ${r.en} at MyAI Office.
+Specialty: ${r.descEn}
+${a.memory?`\nAdditional context/memory from owner:\n${a.memory}\n`:''}
 Rules:
-- Respond in ${LANG === 'th' ? 'Thai' : 'English'} unless asked otherwise
-- For code: write complete, working code in markdown code blocks
-- For content: write publish-ready copy
-- For research: cite facts concisely
-- For trading: analyze trends clearly
-- Be professional but friendly
-- If asked for code, ALWAYS include the full working code
-- Keep responses concise and actionable`;
+- Respond in ${L==='th'?'Thai':'English'} unless asked otherwise
+- For code: ALWAYS use markdown code blocks with language (e.g. \`\`\`python)
+- For content: write publish-ready, complete copy
+- Be concise, professional, and actionable
+- Use markdown for formatting when helpful`;
 }
 
-// ====== UI Rendering ======
-function renderApp() {
-  const app = $('#app');
-  if (state.view === 'chat' && state.chatAgentId) {
-    renderChat();
-    return;
-  }
+// ====== RENDERING ======
+function render(){
+  if(state.view==='chat'&&state.chatId)return renderChat();
   renderOffice();
 }
 
-function renderOffice() {
-  const app = $('#app');
-  LANG = state.settings.lang || 'en';
-  const th = LANG === 'th';
-  
-  app.innerHTML = `
+function renderOffice(){
+  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const ags=state.agents;
+  app.innerHTML=`
     <header>
-      <span class="logo">🏢 <b>MyAI</b> Office</span>
-      <span class="spacer"></span>
-      <span style="font-size:12px;font-weight:800;color:var(--muted)">${state.agents.length} ${th?'คน':'agents'}</span>
-      <button class="btn ghost" onclick="showSettings()" title="${th?'ตั้งค่า':'Settings'}">⚙️</button>
+      <div class="h-left"><span class="logo">🏢 <b>MyAI</b> Office</span><span class="badge">${ags.length}</span></div>
+      <button class="btn sm gho" onclick="showSettings()" title="${th?'ตั้งค่า':'Settings'}">⚙️</button>
     </header>
     <main>
-      <div class="tabs">
-        <div class="tab on">${th?'ออฟฟิศ':'Office'}</div>
-        <div class="tab" onclick="showSettings()">⚙️ ${th?'ตั้งค่า':'Settings'}</div>
-      </div>
-      ${state.agents.length === 0 ? `
+      ${ags.length===0?`
         <div class="empty">
-          <div class="icon">🤖</div>
-          <h2>${th?'ยังไม่มีทีม AI':'No AI team yet'}</h2>
-          <p>${th?'จ้างเอเจนต์ AI มาทำงานให้คุณ — เลือกบทบาทที่ต้องการ':'Hire AI agents to work for you — pick a role to get started.'}</p>
-          <button class="btn p" onclick="showHire()">+ ${th?'จ้างเอเจนต์':'Hire Agent'}</button>
+          <div class="e-icon">🤖</div>
+          <h2>${th?'เริ่มสร้างทีม AI':'Build Your AI Team'}</h2>
+          <p>${th?'จ้างเอเจนต์ AI ให้ทำงานให้คุณ — เลือกบทบาทที่ใช้ประจำ':'Hire AI agents to handle your daily tasks — pick roles you actually need.'}</p>
+          <button class="btn pri" onclick="showHire()">+ ${th?'จ้างเอเจนต์คนแรก':'Hire First Agent'}</button>
         </div>
-      ` : state.agents.map(a => {
-        const r = ROLES[a.role];
-        return `
+      `:ags.map(a=>{
+        const r=R[a.role];const last=a.chat.length?a.chat[a.chat.length-1]:null;
+        return`
           <div class="card" onclick="openChat('${a.id}')">
-            <div class="head">
-              <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.icon}</div>
-              <div>
-                <div class="name">${esc(a.name)}</div>
-                <div class="role" style="color:${r.color}">${r[LANG]||r.en}</div>
+            <div class="c-head">
+              <div class="c-avatar" style="background:${r.color}22;color:${r.color}">${r.icon}</div>
+              <div class="c-info">
+                <div class="c-name">${esc(a.name)}</div>
+                <div class="c-role" style="color:${r.color}">${r[L]||r.en}</div>
               </div>
-              <div class="status ${a.status}">${a.status==='idle'?(th?'ว่าง':'idle'):a.status==='work'?(th?'ทำงาน':'working'):(th?'เสร็จ':'done')}</div>
             </div>
-            <div class="task">${esc(a.chat.length?a.chat[a.chat.length-1].text.slice(0,80):(th?'พร้อมรับคำสั่ง...':'Ready for tasks...'))}</div>
-          </div>
-        `;
+            <div class="c-meta">
+              <span>💬 ${a.chat.length}</span><span>🕐 ${new Date(a.createdAt).toLocaleDateString(L==='th'?'th-TH':'en-US',{month:'short',day:'numeric'})}</span>
+              ${a.memory?'<span>🧠 '+T('trained','สอนแล้ว')+'</span>':''}
+            </div>
+            ${last?`<div class="c-task">${esc(last.text.slice(0,90))}${last.text.length>90?'…':''}</div>`
+              :`<div class="c-task" style="color:var(--muted)">${th?'พร้อมรับคำสั่ง — คลิกเพื่อแชท':'Ready — click to chat'}</div>`}
+          </div>`;
       }).join('')}
-      ${state.agents.length > 0 ? `
-        <button class="btn p" style="width:100%;margin-top:4px" onclick="showHire()">+ ${th?'จ้างเพิ่ม':'Hire More'}</button>
-      ` : ''}
-    </main>
-  `;
+      ${ags.length>0?`<button class="btn pri" style="width:100%;margin-top:4px" onclick="showHire()">+ ${th?'จ้างเพิ่ม':'Hire More'}</button>`:''}
+    </main>`;
 }
 
-function renderChat() {
-  const app = $('#app');
-  LANG = state.settings.lang || 'en';
-  const th = LANG === 'th';
-  const agent = getAgent(state.chatAgentId);
-  if (!agent) { state.view = 'office'; renderOffice(); return; }
-  const r = ROLES[agent.role];
-  
-  app.innerHTML = `
+function renderChat(){
+  const app=$('app');L=state.settings.lang||'en';const th=L==='th';
+  const a=state.agents.find(x=>x.id===state.chatId);
+  if(!a){state.view='office';renderOffice();return;}
+  const r=R[a.role];
+  app.innerHTML=`
     <header>
-      <span class="back-btn" onclick="backToOffice()">←</span>
-      <div class="avatar" style="width:30px;height:30px;border-radius:8px;font-size:16px;background:${r.color}22;color:${r.color}">${r.icon}</div>
-      <div>
-        <div class="name" style="font-size:14px">${esc(agent.name)}</div>
-        <div class="role" style="font-size:10px;color:${r.color}">${r[LANG]||r.en}</div>
-      </div>
-      <span class="spacer"></span>
-      <button class="btn ghost" onclick="showAgentMenu('${agent.id}')" style="font-size:18px">⋯</button>
+      <button class="btn gho sm" onclick="backToOffice()">← ${th?'กลับ':'Back'}</button>
+      <div class="c-avatar" style="width:30px;height:30px;border-radius:8px;font-size:16px;background:${r.color}22;color:${r.color}">${r.icon}</div>
+      <div class="h-left"><div class="c-name" style="font-size:13px">${esc(a.name)}</div></div>
+      <button class="btn sm gho" onclick="showAgentMenu('${a.id}')">⋯</button>
     </header>
-    <div class="chat-panel" id="chatPanel">
+    <div class="quick-acts" id="quickActs">
+      ${(r['quick'+ (th?'Th':'En')]||[]).map(q=>`<button onclick="quickTask('${jesc(q)}')">${esc(q.slice(0,40))}${q.length>40?'…':''}</button>`).join('')}
+    </div>
+    <div class="chat-wrap">
       <div class="chat-msgs" id="chatMsgs">
-        ${agent.chat.length === 0 ? `
+        ${a.chat.length===0?`
           <div style="text-align:center;padding:30px;color:var(--muted)">
-            <div style="font-size:36px;margin-bottom:8px">${r.icon}</div>
-            <div style="font-weight:700">${esc(agent.name)} · ${r[LANG]||r.en}</div>
-            <div style="font-size:12px;margin-top:4px">${r['desc'+(th?'Th':'En')]}</div>
+            <div style="font-size:40px;margin-bottom:8px">${r.icon}</div>
+            <div style="font-weight:800;font-size:15px">${esc(a.name)} · ${r[L]||r.en}</div>
+            <div style="font-size:12px;margin-top:4px;line-height:1.5">${r['desc'+(th?'Th':'En')]}</div>
+            ${a.memory?`<div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:8px;font-size:11px;text-align:left"><b>🧠 Memory:</b> ${esc(a.memory)}</div>`:''}
           </div>
-        ` : agent.chat.map(m => `
-          <div class="chat-msg ${m.role}">
-            ${m.role==='agent' ? esc(agent.name)+': ' : ''}${m.text.replace(/\`\`\`([\s\S]*?)\`\`\`/g, '<div class="code">$1</div>')}
-          </div>
-        `).join('')}
-        <div id="typingInd" style="display:none;align-self:flex-start;padding:8px 14px;background:var(--card);border-radius:14px;font-size:12px;color:var(--muted)">${th?'กำลังคิด...':'Thinking...'}</div>
+        `:a.chat.map(m=>{
+          if(m.role==='user')return`<div class="msg user">${m.image?`<img class="img-attach" src="${m.image}" onclick="window.open('${m.image}')">`:''}${esc(m.text)}</div>`;
+          return`<div class="msg ai"><div class="sender">${esc(a.name)}</div>${md2html(m.text)}</div>`;
+        }).join('')}
+        <div class="typing" id="typing" style="display:none"><span></span><span></span><span></span></div>
       </div>
-      <div class="chat-input-box">
-        <input id="chatInput" placeholder="${th?'พิมพ์คำสั่งให้เอเจนต์...':'Tell your agent what to do...'}" onkeydown="if(event.key==='Enter')sendMessage()">
-        <button class="btn p" onclick="sendMessage()">${th?'ส่ง':'Send'}</button>
+      <div id="imgPrev" style="padding:0 12px;display:none"></div>
+      <div class="chat-bar">
+        <button class="attach-btn" onclick="$('fileInput').click()" title="${th?'แนบรูป':'Attach image'}">📎</button>
+        <textarea id="chatInput" rows="1" placeholder="${th?'สั่งงานเอเจนต์...':'Tell your agent what to do...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button class="send-btn" onclick="sendMsg()">${th?'ส่ง':'Send'}</button>
       </div>
-    </div>
-    <div id="agentMenu" style="display:none"></div>
-  `;
-  
-  setTimeout(() => { const inp = $('#chatInput'); if (inp) inp.focus(); }, 100);
+    </div>`;
+  setTimeout(()=>{$('chatInput')?.focus();scrollMsgs();},100);
 }
 
-function backToOffice() {
-  state.view = 'office'; state.chatAgentId = null;
-  renderOffice();
+function scrollMsgs(){
+  const el=$('chatMsgs');if(el)el.scrollTop=el.scrollHeight;
 }
 
-async function sendMessage() {
-  const input = $('#chatInput');
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  
-  const agent = getAgent(state.chatAgentId);
-  if (!agent) return;
-  
-  const th = LANG === 'th';
-  agent.chat.push({ role: 'user', text });
-  agent.status = 'work';
-  saveState();
-  renderChat();
-  
-  // Show typing indicator
-  const ti = $('#typingInd');
-  if (ti) ti.style.display = 'block';
-  const msgs = $('#chatMsgs');
-  if (msgs) msgs.scrollTop = msgs.scrollHeight;
-  
-  // Call AI
-  const history = [{ role: 'system', text: systemPrompt(agent) }, ...agent.chat.slice(0, -1)];
-  const fullPrompt = text;
-  
-  const result = await callGemini(fullPrompt, history);
-  
-  if (ti) ti.style.display = 'none';
-  
-  if (result.error) {
-    agent.chat.push({ role: 'agent', text: '⚠️ ' + result.error });
-  } else {
-    agent.chat.push({ role: 'agent', text: result.text });
-    agent.status = 'idle';
+function backToOffice(){state.view='office';state.chatId=null;render();}
+function openChat(id){state.view='chat';state.chatId=id;render();}
+
+async function sendMsg(){
+  const inp=$('chatInput');if(!inp)return;
+  const text=inp.value.trim();if(!text&&!window._pendingImg)return;
+  const a=state.agents.find(x=>x.id===state.chatId);if(!a)return;
+  inp.value='';inp.style.height='40px';
+
+  const imgData=window._pendingImg||null;
+  window._pendingImg=null;
+  const imgPrev=$('imgPrev');if(imgPrev)imgPrev.style.display='none';
+
+  a.chat.push({role:'user',text:text||'[image]',image:imgData?.dataUrl||null});
+  a.status='work';save();render();
+
+  const ti=$('typing');if(ti)ti.style.display='flex';scrollMsgs();
+
+  const hist=[{role:'system',text:sysPrompt(a)},...a.chat.slice(0,-1).filter(m=>m.role!=='system')];
+  const prompt=[sysPrompt(a),...a.chat.slice(0,-1).map(m=>m.role==='user'?`User: ${m.text}`:`Assistant: ${m.text}`)].join('\n');
+  const finalPrompt=text||'Describe this image in detail. What do you see?';
+
+  const result=await callGemini(finalPrompt,hist.filter(m=>m.role!=='system').map(m=>({role:m.role,text:m.text})),imgData?{mime:imgData.mime,data:imgData.base64}:null);
+
+  if(ti)ti.style.display='none';
+  if(result.error){
+    a.chat.push({role:'agent',text:'⚠️ '+result.error});
+  }else{
+    a.chat.push({role:'agent',text:result.text});
+    a.status='idle';
   }
-  saveState();
-  renderChat();
+  save();render();scrollMsgs();
 }
 
-function openChat(agentId) {
-  state.view = 'chat';
-  state.chatAgentId = agentId;
-  renderChat();
+function quickTask(q){
+  const inp=$('chatInput');if(inp){inp.value=q;inp.focus();}
 }
 
-function showAgentMenu(agentId) {
-  const agent = getAgent(agentId);
-  if (!agent) return;
-  const th = LANG === 'th';
-  const menu = $('#agentMenu');
-  if (!menu) return;
-  menu.style.display = 'block';
-  menu.innerHTML = `
-    <div class="modal-overlay" onclick="this.parentElement.style.display='none'">
-      <div class="modal" onclick="event.stopPropagation()">
-        <h2>${esc(agent.name)} <span onclick="this.closest('.modal-overlay').parentElement.style.display='none'">✕</span></h2>
-        <button class="btn d" style="width:100%;margin-top:8px" onclick="fireAgent('${agent.id}');backToOffice()">${th?'ไล่ออก':'Fire Agent'}</button>
-      </div>
-    </div>
-  `;
+// ====== FILE UPLOAD ======
+function handleFile(e){
+  const file=e.target.files[0];if(!file)return;
+  if(!file.type.startsWith('image/')){toast(T('Images only','รูปภาพเท่านั้น'));return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const dataUrl=ev.target.result;
+    const base64=dataUrl.split(',')[1];
+    const mime=file.type;
+    window._pendingImg={dataUrl,base64,mime};
+    const prev=$('imgPrev');
+    if(prev){prev.style.display='block';prev.innerHTML=`<img src="${dataUrl}" class="img-preview"><button class="btn sm red" style="margin-left:6px" onclick="window._pendingImg=null;$('imgPrev').style.display='none'">✕</button>`;}
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
 }
 
-// ====== Hire Modal ======
-function showHire() {
-  const th = LANG === 'th';
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
-    <div class="modal">
-      <h2>${th?'จ้างเอเจนต์ AI':'Hire AI Agent'} <span onclick="this.closest('.modal-overlay').remove()">✕</span></h2>
-      <label>${th?'บทบาท':'Role'}</label>
-      <select id="hireRole">
-        ${ROLE_NAMES.map(rn => `<option value="${rn}">${ROLES[rn].icon} ${ROLES[rn][LANG]||ROLES[rn].en}</option>`).join('')}
-      </select>
-      <label>${th?'ชื่อ (ไม่ต้องใส่ก็ได้)':'Name (optional)'}</label>
-      <input id="hireName" placeholder="${th?'ตั้งชื่อเอเจนต์':'Name your agent'}">
-      <button class="btn p" style="width:100%;margin-top:12px" onclick="doHire()">${th?'จ้างเลย! ⛁':'Hire! ⛁'}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+// ====== MODALS ======
+function showHire(){
+  const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';
+  ov.innerHTML=`<div class="modal">
+    <h3>${th?'จ้างเอเจนต์ AI':'Hire AI Agent'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
+    <label>${th?'บทบาท':'Role'}</label>
+    <select id="hrRole">${RNAMES.map(rn=>`<option value="${rn}">${R[rn].icon} ${R[rn][L]||R[rn].en} — ${R[rn]['desc'+(th?'Th':'En')]}</option>`).join('')}</select>
+    <label>${th?'ชื่อ (ไม่ต้องใส่ — สุ่มให้)':'Name (leave blank for random)'}</label>
+    <input id="hrName" placeholder="${th?'ตั้งชื่อเอง':'Custom name'}">
+    <label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Custom Instructions'}</label>
+    <textarea id="hrMem" placeholder="${th?'เช่น: \"ตอบเป็นภาษาไทยเท่านั้น\", \"เน้นเขียนโค้ดแบบ async\", \"รู้ว่าฉันทำธุรกิจอีคอมเมิร์ซ\"':'E.g.: \"Always use async Python\", \"I run an e-commerce business\", \"Respond in bullet points\"'}"></textarea>
+    <button class="btn pri" style="width:100%;margin-top:12px" onclick="doHire()">${th?'จ้างเลย! ✦':'Hire! ✦'}</button>
+  </div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
 }
 
-function doHire() {
-  const role = document.getElementById('hireRole')?.value || 'Developer';
-  const name = document.getElementById('hireName')?.value?.trim();
-  const agent = hireAgent(role, name);
-  document.querySelector('.modal-overlay')?.remove();
-  saveState();
-  renderOffice();
+function doHire(){
+  const role=$('hrRole')?.value||'Developer';
+  const name=$('hrName')?.value?.trim();
+  const memory=$('hrMem')?.value?.trim();
+  const r=R[role];
+  const agent={id:uid(),role,name:name||(r[L]||r.en),memory:memory||'',chat:[],status:'idle',createdAt:Date.now()};
+  state.agents.push(agent);save();
+  document.querySelector('.modal-over')?.remove();
+  toast(T('Agent hired! ✦','จ้างแล้ว! ✦'));render();
 }
 
-// ====== Settings ======
-function showSettings() {
-  const th = LANG === 'th';
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
-    <div class="modal">
-      <h2>⚙️ ${th?'ตั้งค่า':'Settings'} <span onclick="this.closest('.modal-overlay').remove()">✕</span></h2>
-      <label>🌐 ${th?'ภาษา':'Language'}</label>
-      <select id="setLang" onchange="state.settings.lang=this.value;LANG=this.value;saveState()">
-        <option value="en" ${state.settings.lang==='en'?'selected':''}>English</option>
-        <option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option>
-      </select>
-      <label>🔑 Gemini API Key</label>
-      <input id="setKey" type="password" value="${esc(state.settings.apiKey)}" placeholder="AIza...">
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">
-        ${th?'ได้ฟรีที่':'Get free key at'} <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--sky)">aistudio.google.com</a>
-      </div>
-      <label>🧠 ${th?'โมเดล':'Model'}</label>
-      <select id="setModel" onchange="state.settings.model=this.value;saveState()">
-        <option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash (${th?'เร็ว':'fast'})</option>
-        <option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option>
-        <option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro (${th?'ฉลาดกว่า':'smarter'})</option>
-      </select>
-      <button class="btn p" style="width:100%;margin-top:12px" onclick="saveSettings()">${th?'บันทึก':'Save'}</button>
-      <button class="btn ghost" style="width:100%;margin-top:6px;font-size:11px;color:var(--coral)" onclick="resetAll()">${th?'ล้างข้อมูลทั้งหมด':'Reset everything'}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+function showAgentMenu(id){
+  const a=state.agents.find(x=>x.id===id);if(!a)return;const th=L==='th';
+  const ov=document.createElement('div');ov.className='modal-over';
+  ov.innerHTML=`<div class="modal">
+    <h3>${esc(a.name)}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
+    <label>${th?'ชื่อ':'Name'}</label><input id="edName" value="${esc(a.name)}">
+    <label>🧠 ${th?'ความจำ / คำสั่งพิเศษ':'Memory / Instructions'}</label>
+    <textarea id="edMem">${esc(a.memory||'')}</textarea>
+    <label>${th?'บทบาท':'Role'}</label>
+    <select id="edRole">${RNAMES.map(rn=>`<option value="${rn}" ${a.role===rn?'selected':''}>${R[rn].icon} ${R[rn][L]||R[rn].en}</option>`).join('')}</select>
+    <button class="btn pri" style="width:100%;margin-top:10px" onclick="saveAgent('${a.id}')">${th?'บันทึก':'Save'}</button>
+    <button class="btn gho" style="width:100%;margin-top:4px" onclick="exportChat('${a.id}')">📥 ${th?'ส่งออกแชท':'Export Chat'}</button>
+    <button class="btn gho" style="width:100%;margin-top:4px;color:var(--coral)" onclick="clearChat('${a.id}')">🗑 ${th?'ล้างแชท':'Clear Chat'}</button>
+    <button class="btn red" style="width:100%;margin-top:8px" onclick="fireAgent('${a.id}')">${th?'ไล่ออก':'Fire Agent'}</button>
+  </div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
 }
 
-function saveSettings() {
-  const key = document.getElementById('setKey')?.value?.trim();
-  if (key) state.settings.apiKey = key;
-  saveState();
-  document.querySelector('.modal-overlay')?.remove();
-  renderOffice();
-  toast(LANG==='th'?'บันทึกแล้ว ✓':'Saved ✓');
+function saveAgent(id){
+  const a=state.agents.find(x=>x.id===id);if(!a)return;
+  a.name=$('edName')?.value?.trim()||a.name;
+  a.memory=$('edMem')?.value?.trim()||'';
+  const nr=$('edRole')?.value;if(nr&&nr!==a.role){a.role=nr;}
+  save();document.querySelector('.modal-over')?.remove();
+  toast(T('Saved ✓','บันทึกแล้ว ✓'));render();
 }
 
-function resetAll() {
-  if (confirm(LANG==='th'?'แน่ใจนะ?':'Are you sure?')) {
-    try { localStorage.removeItem(STORAGE); } catch(e) {}
-    state = { agents: [], settings: { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' }, view: 'office', chatAgentId: null };
-    document.querySelector('.modal-overlay')?.remove();
-    renderOffice();
-  }
+function exportChat(id){
+  const a=state.agents.find(x=>x.id===id);if(!a)return;
+  let txt=`# Chat with ${a.name} (${a.role})\n# MyAI Office — ${new Date().toISOString().slice(0,10)}\n\n`;
+  for(const m of a.chat)txt+=`## ${m.role==='user'?'You':a.name}\n${m.text}\n\n`;
+  const blob=new Blob([txt],{type:'text/markdown'});
+  const url=URL.createObjectURL(blob);
+  const dl=document.createElement('a');dl.href=url;dl.download=`${a.name.replace(/\s/g,'_')}_chat.md`;dl.click();
+  URL.revokeObjectURL(url);toast(T('Exported!','ส่งออกแล้ว!'));
 }
 
-// ====== Boot ======
-(async function boot() {
-  try {
-    loadState();
-    LANG = state.settings.lang || 'en';
-    if (!state.settings) state.settings = { apiKey: '', lang: 'en', model: 'gemini-2.0-flash' };
-    if (!Array.isArray(state.agents)) state.agents = [];
-    renderApp();
-  } catch (e) {
-    document.getElementById('app').innerHTML = '<div class="empty"><h2>⚠️ App failed to start</h2><p>Try clearing browser data.</p></div>';
-  }
+function clearChat(id){
+  const a=state.agents.find(x=>x.id===id);if(!a)return;
+  if(!confirm(T('Clear all messages?','ล้างข้อความทั้งหมด?')))return;
+  a.chat=[];a.status='idle';save();
+  document.querySelector('.modal-over')?.remove();render();
+}
+
+function fireAgent(id){
+  const a=state.agents.find(x=>x.id===id);if(!a)return;
+  if(!confirm(T(`Fire ${a.name}?`,`ไล่ ${a.name} ออก?`)))return;
+  state.agents=state.agents.filter(x=>x.id!==id);
+  if(state.chatId===id){state.view='office';state.chatId=null;}
+  save();document.querySelector('.modal-over')?.remove();render();
+}
+
+function showSettings(){
+  const th=L==='th';const ov=document.createElement('div');ov.className='modal-over';
+  ov.innerHTML=`<div class="modal">
+    <h3>⚙️ ${th?'ตั้งค่า':'Settings'}<span class="close" onclick="this.closest('.modal-over').remove()">✕</span></h3>
+    <label>🌐 ${th?'ภาษา':'Language'}</label>
+    <select id="setLang" onchange="state.settings.lang=this.value;L=this.value;save()">
+      <option value="en" ${state.settings.lang==='en'?'selected':''}>English</option>
+      <option value="th" ${state.settings.lang==='th'?'selected':''}>ภาษาไทย</option>
+    </select>
+    <label>🔑 Gemini API Key</label>
+    <input id="setKey" type="password" value="${esc(state.settings.apiKey)}" placeholder="AIza...">
+    <div style="font-size:10px;color:var(--muted);margin:2px 0 8px">${th?'ได้ฟรีที่':'Free key at'} <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--sky)">aistudio.google.com</a></div>
+    <label>🧠 ${th?'โมเดล':'Model'}</label>
+    <select id="setModel" onchange="state.settings.model=this.value;save()">
+      <option value="gemini-2.0-flash" ${state.settings.model==='gemini-2.0-flash'?'selected':''}>Gemini 2.0 Flash (${th?'เร็ว':'fast'})</option>
+      <option value="gemini-2.5-flash" ${state.settings.model==='gemini-2.5-flash'?'selected':''}>Gemini 2.5 Flash</option>
+      <option value="gemini-2.5-pro" ${state.settings.model==='gemini-2.5-pro'?'selected':''}>Gemini 2.5 Pro (${th?'ฉลาด':'smart'})</option>
+    </select>
+    <button class="btn pri" style="width:100%;margin-top:10px" onclick="doSaveSettings()">${th?'บันทึก':'Save'}</button>
+    <button class="btn gho" style="width:100%;margin-top:4px;color:var(--coral);font-size:11px" onclick="doReset()">${th?'ล้างข้อมูลทั้งหมด':'Reset Everything'}</button>
+  </div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)ov.remove();};
+}
+
+function doSaveSettings(){
+  const key=$('setKey')?.value?.trim();if(key)state.settings.apiKey=key;
+  save();document.querySelector('.modal-over')?.remove();render();
+  toast(T('Saved ✓','บันทึกแล้ว ✓'));
+}
+
+function doReset(){
+  if(!confirm(T('Delete everything?','ลบทุกอย่าง?')))return;
+  try{localStorage.removeItem(S)}catch(e){}
+  state={agents:[],settings:{apiKey:'',lang:'en',model:'gemini-2.0-flash'},view:'office',chatId:null};
+  document.querySelector('.modal-over')?.remove();render();
+}
+
+// ====== BOOT ======
+(async function(){
+  try{load();L=state.settings.lang||'en';
+    if(!state.settings)state.settings={apiKey:'',lang:'en',model:'gemini-2.0-flash'};
+    if(!Array.isArray(state.agents))state.agents=[];
+    render();
+  }catch(e){$('app').innerHTML=`<div class="empty"><h2>⚠️ App failed</h2><p>Try clearing browser data.</p></div>`;}
 })();
 </script>
 </body>
