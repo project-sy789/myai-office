@@ -398,6 +398,14 @@ function buildAgents3D(){
     
     // === LEGS ===
     const legsG=new THREE.Group();
+    // HIPS / PELVIS
+    const hips=new THREE.Mesh(new THREE.SphereGeometry(0.22,16,12,0,Math.PI*2,Math.PI*0.7,Math.PI*0.6),M({color:lk.outfit,roughness:0.35}));
+    hips.position.y=0.42;hips.castShadow=true;legsG.add(hips);
+    // Butt cheeks
+    const buttL=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),M({color:lk.outfit,roughness:0.35}));
+    buttL.position.set(-0.08,0.32,-0.1);legsG.add(buttL);
+    const buttR=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),M({color:lk.outfit,roughness:0.35}));
+    buttR.position.set(0.08,0.32,-0.1);legsG.add(buttR);
     [[-0.1,0,-0.05],[0.1,0,0.05]].forEach(([lx,ly,lz])=>{
       const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,0.35,8),M({color:lk.outfit,roughness:0.4}));
       leg.position.set(lx,0.17,ly);leg.castShadow=true;legsG.add(leg);
