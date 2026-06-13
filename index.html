@@ -475,7 +475,7 @@ function buildAgents3D(){
     // Belt
     const belt=new THREE.Mesh(new THREE.TorusGeometry(0.22,0.03,8,16),M({color:'#3d3025',roughness:0.5}));
     belt.position.y=0.35;belt.rotation.x=Math.PI/2;torsoG.add(belt);
-    torsoG.position.y=0.35;g.add(torsoG);
+    torsoG.position.y=-0.05;g.add(torsoG);
     
     // === ARMS ===
     [[-1,0.22],[1,0.22]].forEach(([side,ox])=>{
@@ -484,7 +484,7 @@ function buildAgents3D(){
       upper.position.y=0.55;armG.add(upper);
       const hand=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8),M({color:lk.skin,roughness:0.3}));
       hand.position.y=0.38;armG.add(hand);
-      armG.position.set(side*0.28,0.4,0);armG.rotation.z=side*0.3;armG.rotation.x=-0.1;
+      armG.position.set(side*0.28,0.05,0);armG.rotation.z=side*0.3;armG.rotation.x=-0.1;
       armG.userData={side};g.add(armG);
     });
     
